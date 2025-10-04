@@ -7,13 +7,14 @@ export default function Login() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    confirmPassword: '', // Add confirmPassword to state
   });
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { login } = useContext(AuthContext); // Get login function from AuthContext
   const [showPassword, setShowPassword] = useState(false); // New state for password visibility
 
-  const { email, password } = formData;
+  const { email, password, confirmPassword } = formData;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -21,6 +22,13 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null); // Clear previous errors
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     try {
       const data = await api.login(email, password);
 
@@ -39,7 +47,7 @@ export default function Login() {
 
   return (
     <div className="flex justify-center items-center h-full">
-      <div className="bg-card border border-border rounded-xl p-10 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl 2xl:max-w-6xl text-center flex-shrink-0">
+      <div className="bg-card border border-border rounded-xl p-10 w-full max-w-xl text-center flex-shrink-0">
         <div className="flex items-center justify-center gap-2 font-display font-bold text-lg mb-4">
           <span className="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-400 to-purple-700">⚡</span>
           <span>HackVerse</span>
@@ -60,25 +68,48 @@ export default function Login() {
               required
             />
           </div>
-          <div className="relative">
-            <label htmlFor="password" className="block mb-2 font-medium">Password</label>
-            <input
-              type={showPassword ? 'text' : 'password'} // Toggle password visibility
-              id="password"
-              placeholder="Enter your password"
-              className="w-full p-3 border border-border bg-bg-elev rounded-lg text-text
-                         focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-              value={password}
-              onChange={handleChange}
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(s => !s)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5" style={{ top: '30px' }}
-            >
-              {showPassword ? '🙈' : '👁️'}
-            </button>
+          <div className="flex gap-4">
+            <div className="w-1/2 relative">
+              <label htmlFor="password" className="block mb-2 font-medium">Password</label>
+              <input
+                type={showPassword ? 'text' : 'password'} // Toggle password visibility
+                id="password"
+                placeholder="Enter your password"
+                className="w-full p-3 border border-border bg-bg-elev rounded-lg text-text
+                           focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                value={password}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(s => !s)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5" style={{ top: '30px' }}
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
+
+            <div className="w-1/2 relative">
+              <label htmlFor="confirmPassword" className="block mb-2 font-medium">Confirm Password</label>
+              <input
+                type={showPassword ? 'text' : 'password'} // Toggle password visibility
+                id="confirmPassword"
+                placeholder="Enter your password again"
+                className="w-full p-3 border border-border bg-bg-elev rounded-lg text-text
+                           focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                value={confirmPassword}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(s => !s)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5" style={{ top: '30px' }}
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
           </div>
           <div className="text-right text-sm mb-4">
             <Link to="#" className="text-primary hover:underline">Forgot Password?</Link>

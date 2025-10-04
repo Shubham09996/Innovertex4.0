@@ -21,6 +21,11 @@ const userSchema = new mongoose.Schema({
     enum: ['Participant', 'Organizer', 'Mentor', 'Judge'],
     default: 'Participant',
   },
+  bio: {
+    type: String,
+    trim: true,
+    maxlength: 500,
+  },
   googleId: {
     type: String,
   },

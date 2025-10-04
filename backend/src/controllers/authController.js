@@ -94,13 +94,14 @@ export const getProfile = async (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
-  const { username, email, role } = req.body;
+  const { username, email, role, bio } = req.body; // Add bio
 
   // Build user object
   const userFields = {};
   if (username) userFields.username = username;
   if (email) userFields.email = email;
   if (role) userFields.role = role;
+  if (bio) userFields.bio = bio; // Add bio to userFields
 
   try {
     let user = await User.findById(req.user.id);

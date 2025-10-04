@@ -36,7 +36,7 @@ export default function Login() {
 
   return (
     <div className="flex justify-center items-center h-full">
-      <div className="bg-card border border-border rounded-xl p-10 w-full max-w-2xl text-center flex-shrink-0">
+      <div className="bg-card border border-border rounded-xl p-10 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl 2xl:max-w-6xl text-center flex-shrink-0">
         <div className="flex items-center justify-center gap-2 font-display font-bold text-lg mb-4">
           <span className="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-400 to-purple-700">⚡</span>
           <span>HackVerse</span>
@@ -57,18 +57,31 @@ export default function Login() {
               required
             />
           </div>
-          <div>
-            <label htmlFor="password" className="block mb-2 font-medium">Password</label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Enter your password"
-              className="w-full p-3 border border-border bg-bg-elev rounded-lg text-text
-                         focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-              value={password}
-              onChange={handleChange}
-              required
-            />
+          <div className="flex gap-4">
+            <div className="w-1/2">
+              <label htmlFor="password" className="block mb-2 font-medium">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="Enter your password"
+                className="w-full p-3 border border-border bg-bg-elev rounded-lg text-text
+                           focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                value={password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="w-1/2">
+              <label htmlFor="confirm-password" className="block mb-2 font-medium">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                placeholder="Confirm your password"
+                className="w-full p-3 border border-border bg-bg-elev rounded-lg text-text
+                           focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                required
+              />
+            </div>
           </div>
           {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
           <button

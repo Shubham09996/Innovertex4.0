@@ -8,12 +8,33 @@ import FeaturesPage from './pages/FeaturesPage'
 import NavBar from './components/NavBar'
 import Footer from './components/Footer'
 import OAuthCallback from './pages/Auth/OAuthCallback.jsx'; // Import the new component
+import ParticipantDashboardPage from './pages/Participant/ParticipantDashboardPage';
+import HackathonsPage from './pages/Participant/HackathonsPage';
+import MyHackathonsPage from './pages/Participant/MyHackathonsPage';
+import TeamPage from './pages/Participant/TeamPage';
+import ProfilePage from './pages/Participant/ProfilePage';
+import LeaderboardPage from './pages/Participant/LeaderboardPage';
+import HackathonDetailPage from './pages/Participant/HackathonDetailPage';
+import WorkspacePage from './pages/Participant/WorkspacePage';
+import ParticipantNavBar from './components/Participant/ParticipantNavBar'; // Import ParticipantNavBar
 
 function AuthLayout({ children, theme, onToggleTheme }) {
   return (
     <div className="page">
       <NavBar theme={theme} onToggleTheme={onToggleTheme} />
       <div className="flex-grow pt-[100px] pb-[100px] flex justify-center items-center">
+        {children}
+      </div>
+      <Footer />
+    </div>
+  );
+}
+
+function ParticipantLayout({ children, theme, onToggleTheme }) {
+  return (
+    <div className="page bg-bg">
+      <ParticipantNavBar theme={theme} onToggleTheme={onToggleTheme} />
+      <div className="flex-grow flex justify-center items-center">
         {children}
       </div>
       <Footer />
@@ -38,13 +59,40 @@ export default function App() {
 
   const toggleTheme = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'))
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('jwtToken');
+    setIsLoggedIn(!!token);
+  }, []);
+
   return (
     <Routes>
-      <Route path="/" element={<LandingPage theme={theme} onToggleTheme={toggleTheme} />} />
-      <Route path="/features" element={<FeaturesPage theme={theme} onToggleTheme={toggleTheme} />} />
+      <Route path="/" element={
+        <div className="page">
+          <NavBar theme={theme} onToggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
+          <LandingPage theme={theme} onToggleTheme={toggleTheme} />
+          <Footer />
+        </div>
+      } />
+      <Route path="/features" element={
+        <div className="page">
+          <NavBar theme={theme} onToggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
+          <FeaturesPage theme={theme} onToggleTheme={toggleTheme} />
+          <Footer />
+        </div>
+      } />
       <Route path="/login" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><Login /></AuthLayout>} />
       <Route path="/signup" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><Signup /></AuthLayout>} />
       <Route path="/auth/oauth-callback" element={<OAuthCallback />} />
+      <Route path="/dashboard" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><ParticipantDashboardPage /></ParticipantLayout>} />
+      <Route path="/participant/hackathons" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><HackathonsPage /></ParticipantLayout>} />
+      <Route path="/participant/my-hackathons" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><MyHackathonsPage /></ParticipantLayout>} />
+      <Route path="/participant/team" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><TeamPage /></ParticipantLayout>} />
+      <Route path="/participant/profile" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><ProfilePage /></ParticipantLayout>} />
+      <Route path="/participant/leaderboard" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><LeaderboardPage /></ParticipantLayout>} />
+      <Route path="/participant/hackathons/:id" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><HackathonDetailPage /></ParticipantLayout>} />
+      <Route path="/participant/workspace/:id" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><WorkspacePage /></ParticipantLayout>} />
     </Routes>
   )
 }

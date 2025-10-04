@@ -1,8 +1,3 @@
-import express from 'express';
-import connectDB from './config/db.js';
-import session from 'express-session';
-import passport from 'passport';
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import path from 'path'; // Import path module
 import { fileURLToPath } from 'url'; // Import fileURLToPath
@@ -12,16 +7,42 @@ const __dirname = path.dirname(__filename); // Get current directory name
 
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') }); // Explicitly load .env from backend directory
 
+import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import connectDB from './config/db.js';
+import session from 'express-session';
+import passport from 'passport';
+import jwt from 'jsonwebtoken';
+import initSocket from './utils/socket.js'; // Import initSocket
+import cors from 'cors'; // Import cors
+
 const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL || "http://localhost:5173", // Your frontend URL
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
+
+// Initialize Socket.IO event handlers
+initSocket(io);
 
 // Passport config
-import './config/passport.js'; // Import passport config directly
+import initializePassport from './config/passport.js'; // Import initializePassport function
+initializePassport(); // Call the function to initialize Passport
 
 // Connect Database
 connectDB();
 
 // Init Middleware
 app.use(express.json({ extended: false }));
+app.use(cors({ // Add CORS middleware for Express routes
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  credentials: true,
+}));
 
 // Express session middleware
 app.use(
@@ -40,10 +61,16 @@ app.use(passport.session());
 import teamRoutes from './routes/teamRoutes.js';
 import submissionRoutes from './routes/submissionRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import hackathonRoutes from './routes/hackathonRoutes.js';
+import leaderboardRoutes from './routes/leaderboardRoutes.js';
+import chatRoutes from './routes/chatRoutes.js';
 
 app.use('/api/teams', teamRoutes);
 app.use('/api/submissions', submissionRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/hackathons', hackathonRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Google OAuth routes
 app.get(
@@ -69,7 +96,7 @@ app.get(
       (err, token) => {
         if (err) throw err;
         // Redirect to frontend with token
-        res.redirect(`http://localhost:3000/auth/oauth-callback?token=${token}`);
+        res.redirect(`${process.env.FRONTEND_URL || "http://localhost:5173"}/auth/oauth-callback?token=${token}`);
       }
     );
   }
@@ -96,7 +123,7 @@ app.get(
       (err, token) => {
         if (err) throw err;
         // Redirect to frontend with token
-        res.redirect(`http://localhost:3000/auth/oauth-callback?token=${token}`);
+        res.redirect(`${process.env.FRONTEND_URL || "http://localhost:5173"}/auth/oauth-callback?token=${token}`);
       }
     );
   }
@@ -114,4 +141,6 @@ if (process.env.NODE_ENV === 'production') {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+
+export { io };

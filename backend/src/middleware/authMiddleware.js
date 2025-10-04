@@ -3,12 +3,15 @@ import User from '../models/User.js';
 
 export const protect = (req, res, next) => {
   // Get token from header
-  const token = req.header('x-auth-token');
+  let token = req.header('authorization'); // Changed to 'authorization' header
 
-  // Check if no token
-  if (!token) {
+  // Check if no token or not a Bearer token
+  if (!token || !token.startsWith('Bearer ')) {
     return res.status(401).json({ msg: 'No token, authorization denied' });
   }
+
+  // Extract actual token
+  token = token.slice(7, token.length).trimLeft(); // Remove Bearer prefix
 
   // Verify token
   try {

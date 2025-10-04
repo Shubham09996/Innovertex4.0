@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import api from '../../utils/api'; // Update the import path
+import { AuthContext } from '../../context/AuthContext'; // Import AuthContext
 
 export default function Signup() {
   const [role, setRole] = useState('Participant');
@@ -10,8 +11,12 @@ export default function Signup() {
     password: '',
     confirmPassword: '',
   });
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { username, email, password, confirmPassword } = formData;
 
@@ -23,6 +28,21 @@ export default function Signup() {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setAvatarFile(null);
+      setAvatarPreview(null);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
@@ -30,19 +50,32 @@ export default function Signup() {
       return;
     }
     try {
-      const data = await api.signup(username, email, password, role);
+      const formData = new FormData();
+      formData.append('username', username);
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('role', role);
+      if (avatarFile) {
+        formData.append('avatar', avatarFile);
+      }
 
-      if (data.token) { // Although signup doesn't directly return a token in our current backend, it might in other setups.
-        console.log('Signup successful:', data);
-        navigate('/login'); // Redirect to login page on successful signup
+      const data = await api.signup(formData);
+
+      if (data.msg && data.msg === 'User already exists') {
+        setError(data.msg);
       } else if (data.msg) {
         setError(data.msg);
       } else {
-        setError('Signup failed');
+        const loginRes = await login(email, password);
+        if (loginRes && loginRes.token) {
+          navigate('/participant/dashboard');
+        } else {
+          setError('Signup successful, but automatic login failed. Please try logging in.');
+          navigate('/login');
+        }
       }
     } catch (err) {
-      console.error(err);
-      setError('Server error');
+      setError(err.message || 'Server error');
     }
   };
 
@@ -55,20 +88,46 @@ export default function Signup() {
         </div>
         <h1 className="font-display text-3xl mb-2">Join HackVerse</h1>
         <p className="text-muted mb-6">Create your account to get started</p>
+
         <form className="grid gap-4 text-left" onSubmit={handleSubmit}>
+          {/* Avatar Upload */}
+          <div className="flex flex-col items-center mb-4 relative">
+            <label htmlFor="avatar" className="block mb-2 font-medium">Profile Picture</label>
+            <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-primary mb-2 flex items-center justify-center bg-gray-200 relative">
+              {avatarPreview ? (
+                <img src={avatarPreview} alt="Avatar Preview" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-gray-500 text-3xl">👤</span>
+              )}
+              {/* File input only covers avatar circle */}
+              <input
+                type="file"
+                id="avatar"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Username */}
           <div>
             <label htmlFor="username" className="block mb-2 font-medium">Username</label>
             <input
               type="text"
               id="username"
-              placeholder="Choose a username"
+              placeholder="Enter your username"
               className="w-full p-3 border border-border bg-bg-elev rounded-lg text-text
                          focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
               value={username}
               onChange={handleChange}
               required
+              autoComplete="off"
             />
           </div>
+
+          {/* Email */}
           <div>
             <label htmlFor="email" className="block mb-2 font-medium">Email</label>
             <input
@@ -80,36 +139,56 @@ export default function Signup() {
               value={email}
               onChange={handleChange}
               required
+              autoComplete="off"
             />
           </div>
+
+          {/* Passwords */}
           <div className="flex gap-4">
-            <div className="w-1/2">
+            <div className="w-1/2 relative">
               <label htmlFor="password" className="block mb-2 font-medium">Password</label>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 id="password"
-                placeholder="Create a password"
+                placeholder="Enter your password"
                 className="w-full p-3 border border-border bg-bg-elev rounded-lg text-text
                            focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 value={password}
                 onChange={handleChange}
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(s => !s)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5" style={{ top: '30px' }}
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
             </div>
-            <div className="w-1/2">
-              <label htmlFor="confirm-password" className="block mb-2 font-medium">Confirm Password</label>
+
+            <div className="w-1/2 relative">
+              <label htmlFor="confirmPassword" className="block mb-2 font-medium">Confirm Password</label>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 id="confirmPassword"
-                placeholder="Confirm your password"
+                placeholder="Enter your password again"
                 className="w-full p-3 border border-border bg-bg-elev rounded-lg text-text
                            focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 value={confirmPassword}
                 onChange={handleChange}
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(s => !s)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5" style={{ top: '30px' }}
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
             </div>
           </div>
+
+          {/* Role */}
           <div>
             <label htmlFor="role" className="block mb-2 font-medium">I am a:</label>
             <select
@@ -125,7 +204,9 @@ export default function Signup() {
               <option value="Judge">Judge</option>
             </select>
           </div>
+
           {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+
           <button
             type="submit"
             className="w-full mt-4 flex justify-center items-center gap-2 bg-gradient-to-r from-primary to-primary-2 text-white
@@ -134,11 +215,13 @@ export default function Signup() {
             Sign Up
           </button>
         </form>
+
         <div className="flex items-center my-6">
           <div className="flex-grow border-t border-border"></div>
           <span className="flex-shrink mx-4 text-muted">OR</span>
           <div className="flex-grow border-t border-border"></div>
         </div>
+
         <div className="grid gap-4">
           <button
             onClick={() => (window.location.href = '/api/auth/google')}
@@ -157,7 +240,10 @@ export default function Signup() {
             Continue with GitHub
           </button>
         </div>
-        <p className="mt-6 text-muted">Already have an account? <Link to="/login" className="text-primary font-medium">Login</Link></p>
+
+        <p className="mt-6 text-muted">
+          Already have an account? <Link to="/login" className="text-primary font-medium">Login</Link>
+        </p>
       </div>
     </div>
   )

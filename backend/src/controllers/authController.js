@@ -5,6 +5,7 @@ import User from '../models/User.js';
 export const signup = async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
+    const avatar = req.file ? req.file.path : undefined; // Get avatar URL from Cloudinary
 
     let user = await User.findOne({ email });
     if (user) {
@@ -16,6 +17,7 @@ export const signup = async (req, res) => {
       email,
       password,
       role,
+      avatar, // Save avatar URL if available
     });
 
     const salt = await bcrypt.genSalt(10);
@@ -41,7 +43,7 @@ export const signup = async (req, res) => {
     );
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ msg: 'Server Error' }); // Changed to JSON response
   }
 };
 
@@ -75,6 +77,43 @@ export const login = async (req, res) => {
         res.json({ token });
       }
     );
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+export const getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  const { username, email, role } = req.body;
+
+  // Build user object
+  const userFields = {};
+  if (username) userFields.username = username;
+  if (email) userFields.email = email;
+  if (role) userFields.role = role;
+
+  try {
+    let user = await User.findById(req.user.id);
+
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+
+    user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: userFields },
+      { new: true }
+    ).select('-password');
+
+    res.json(user);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

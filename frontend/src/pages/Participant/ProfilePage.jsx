@@ -1,31 +1,44 @@
 // ProfilePage.jsx
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import api from '../../utils/api';
+import { AuthContext } from '../../context/AuthContext';
 
 /**
  * Requirements:
  * - Tailwind CSS configured
  * - framer-motion installed
+ * - AuthContext available
  *
  * Usage:
  * <ProfilePage />
  */
 
 const ProfilePage = () => {
-  // Dummy data
-  const [profile, setProfile] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    bio:
-      "Full-stack tinkerer. I build fast UIs, prototype AI ideas and win hackathons. Lover of elegant code ✨",
-    avatar: "https://picsum.photos/seed/profileavatar/200/200",
-    skills: ["React", "Node.js", "Tailwind", "Framer Motion", "MongoDB"],
-    certificates: [
-      { id: 1, name: "Web Development Bootcamp", authority: "Udemy", date: "Jan 2023" },
-      { id: 2, name: "Machine Learning Specialization", authority: "Coursera", date: "Apr 2023" },
-      { id: 3, name: "Cloud Practitioner Essentials", authority: "AWS", date: "Sep 2023" },
-    ],
-  });
+  const { user, token, loading: authLoading } = useContext(AuthContext);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!token || authLoading) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const userData = await api.getProfile(token);
+        setProfile(userData);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+        setError(err);
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [token, authLoading]);
 
   const [badges] = useState([
     { id: 1, name: "First Hack", icon: "🏆", desc: "Completed first hackathon" },
@@ -35,11 +48,12 @@ const ProfilePage = () => {
     { id: 5, name: "Mentor", icon: "🧭", desc: "Hosted mentoring sessions" },
   ]);
 
+  // Dummy stats, will be replaced with actual user stats later
   const stats = {
-    hackathons: 12,
-    wins: 4,
-    projects: 10,
-    points: 1875,
+    hackathons: 0,
+    wins: 0,
+    projects: 0,
+    points: 0,
   };
 
   // 30-day activity (0-3)
@@ -54,14 +68,34 @@ const ProfilePage = () => {
   const [celebrate, setCelebrate] = useState(false);
   const [activeTab, setActiveTab] = useState("Activity"); // New state for active tab
 
-  // update profile (mock)
-  const handleSaveProfile = (newProfile) => {
-    setProfile(newProfile);
-    setOpenEdit(false);
-    // small celebration when saving
-    setCelebrate(true);
-    setTimeout(() => setCelebrate(false), 1600);
+  // update profile
+  const handleSaveProfile = async (newProfile) => {
+    setSaving(true);
+    try {
+      const updatedUser = await api.updateProfile(newProfile, token);
+      setProfile(updatedUser);
+      setOpenEdit(false);
+      setCelebrate(true);
+      setTimeout(() => setCelebrate(false), 1600);
+    } catch (err) {
+      console.error("Error saving profile:", err);
+      // Handle error, maybe show a toast notification
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (authLoading || loading) {
+    return <main className="min-h-screen bg-bg text-text py-24 px-6 flex items-center justify-center">Loading profile...</main>;
+  }
+
+  if (error) {
+    return <main className="min-h-screen bg-bg text-red-500 py-24 px-6 flex items-center justify-center">Error: {error.message}</main>;
+  }
+
+  if (!user || !profile) {
+    return <main className="min-h-screen bg-bg text-text py-24 px-6 flex items-center justify-center">Please log in to view your profile.</main>;
+  }
 
   return (
     <main className="min-h-screen bg-bg text-text py-24 px-6">
@@ -79,7 +113,7 @@ const ProfilePage = () => {
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="relative">
                 <motion.img
-                  src={profile.avatar}
+                  src={profile.avatar || `https://ui-avatars.com/api/?name=${profile.username}`}
                   alt="avatar"
                   className="w-28 h-28 md:w-36 md:h-36 rounded-full object-cover border-4 border-primary p-0"
                   initial={{ scale: 0.9 }}
@@ -99,12 +133,12 @@ const ProfilePage = () => {
 
               <div className="flex-1">
                 <h2 className="text-3xl md:text-4xl font-extrabold leading-tight">
-                  {profile.name}
+                  {profile.username}
                 </h2>
-                <p className="text-sm text-muted mt-1 max-w-xl">{profile.bio}</p>
+                <p className="text-sm text-muted mt-1 max-w-xl">{profile.bio || 'No bio provided.'}</p>
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {profile.skills.map((s) => (
+                  {profile.skills && profile.skills.map((s) => (
                     <motion.span
                       key={s}
                       whileHover={{ y: -4, scale: 1.03 }}
@@ -251,7 +285,7 @@ const ProfilePage = () => {
             >
               <h3 className="font-semibold text-lg mb-4">My Certificates</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {profile.certificates.map((cert, index) => (
+                {profile.certificates && profile.certificates.map((cert, index) => (
                   <motion.div
                     key={cert.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -318,6 +352,7 @@ const ProfilePage = () => {
             profile={profile}
             onClose={() => setOpenEdit(false)}
             onSave={handleSaveProfile}
+            saving={saving}
           />
         )}
       </AnimatePresence>
@@ -567,8 +602,8 @@ const GitHubLikeActivityGraph = () => {
                 {week.map((day, dayIndex) => (
                   <div
                     key={dayIndex}
-                    className={`w-3 h-3 rounded-[2px] ${colors[day.level]}`}
-                    title={day.date ? `${day.date.toDateString()}: ${day.level > 0 ? day.level + ' contributions' : 'No contributions'}` : ''}
+                    className={`w-3 h-3 rounded-[2px] ${colors[day ? day.level : 0]}`}
+                    title={day && day.date ? `${day.date.toDateString()}: ${day.level > 0 ? day.level + ' contributions' : 'No contributions'}` : ''}
                   ></div>
                 ))}
               </div>
@@ -633,8 +668,14 @@ const SmallStat = ({ label, value, color = "primary" }) => {
 };
 
 /* ---------------------- Edit Modal ---------------------- */
-const EditProfileModal = ({ profile, onClose, onSave }) => {
+const EditProfileModal = ({ profile, onClose, onSave, saving }) => {
   const [form, setForm] = React.useState(profile);
+
+  React.useEffect(() => {
+    if (profile) {
+      setForm(profile);
+    }
+  }, [profile]);
 
   return (
     <motion.div
@@ -653,33 +694,40 @@ const EditProfileModal = ({ profile, onClose, onSave }) => {
         className="relative z-10 w-full max-w-2xl rounded-2xl bg-card backdrop-blur p-6 border border-border text-text"
       >
         <h3 className="text-xl font-bold mb-3">Edit Profile</h3>
-        <p className="text-sm text-muted mb-4">Update your public info — changes are instant (mock).</p>
+        <p className="text-sm text-muted mb-4">Update your public info.</p>
 
         <div className="grid grid-cols-1 gap-3">
           <input
             className="p-3 rounded-lg bg-bg-elev border border-border text-text"
-            value={form.name}
-            onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))}
-            placeholder="Full name"
+            value={form.username || ''}
+            onChange={(e) => setForm((s) => ({ ...s, username: e.target.value }))}
+            placeholder="Username"
           />
           <input
             className="p-3 rounded-lg bg-bg-elev border border-border text-text"
-            value={form.email}
+            value={form.email || ''}
             onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))}
             placeholder="Email"
+            disabled // Email is usually not editable via profile settings directly
           />
           <input
             className="p-3 rounded-lg bg-bg-elev border border-border text-text"
-            value={form.avatar}
+            value={form.avatar || ''}
             onChange={(e) => setForm((s) => ({ ...s, avatar: e.target.value }))}
             placeholder="Avatar URL"
           />
           <textarea
             className="p-3 rounded-lg bg-bg-elev border border-border text-text"
-            value={form.bio}
+            value={form.bio || ''}
             onChange={(e) => setForm((s) => ({ ...s, bio: e.target.value }))}
             rows={3}
             placeholder="Short bio"
+          />
+          <input
+            className="p-3 rounded-lg bg-bg-elev border border-border text-text"
+            value={form.skills ? form.skills.join(', ') : ''}
+            onChange={(e) => setForm((s) => ({ ...s, skills: e.target.value.split(',').map(s => s.trim()) }))}
+            placeholder="Skills (comma-separated)"
           />
         </div>
 
@@ -688,8 +736,9 @@ const EditProfileModal = ({ profile, onClose, onSave }) => {
           <button
             onClick={() => onSave(form)}
             className="px-4 py-2 rounded-full bg-gradient-to-r from-primary to-primary-2 text-white font-semibold"
+            disabled={saving}
           >
-            Save
+            {saving ? 'Saving...' : 'Save'}
           </button>
         </div>
       </motion.div>
@@ -721,6 +770,8 @@ const BurstParticles = () => {
             initial={{ cx: 100, cy: 100, opacity: 1, scale: 0.2 }}
             animate={{ cx: x, cy: y, opacity: 0, scale: 1 }}
             transition={{ duration: 0.9, delay, ease: "easeOut" }}
+            // eslint-disable-next-line react/no-unknown-property
+            style={{ transformOrigin: 'center' }}
           />
         );
       })}

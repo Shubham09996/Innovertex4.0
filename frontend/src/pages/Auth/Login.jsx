@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import api from '../../utils/api';  // Update the import path
+import { AuthContext } from '../../context/AuthContext'; // Import AuthContext
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -9,6 +10,8 @@ export default function Login() {
   });
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext); // Get login function from AuthContext
+  const [showPassword, setShowPassword] = useState(false); // New state for password visibility
 
   const { email, password } = formData;
 
@@ -57,31 +60,28 @@ export default function Login() {
               required
             />
           </div>
-          <div className="flex gap-4">
-            <div className="w-1/2">
-              <label htmlFor="password" className="block mb-2 font-medium">Password</label>
-              <input
-                type="password"
-                id="password"
-                placeholder="Enter your password"
-                className="w-full p-3 border border-border bg-bg-elev rounded-lg text-text
-                           focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                value={password}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="w-1/2">
-              <label htmlFor="confirm-password" className="block mb-2 font-medium">Confirm Password</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                placeholder="Confirm your password"
-                className="w-full p-3 border border-border bg-bg-elev rounded-lg text-text
-                           focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                required
-              />
-            </div>
+          <div className="relative">
+            <label htmlFor="password" className="block mb-2 font-medium">Password</label>
+            <input
+              type={showPassword ? 'text' : 'password'} // Toggle password visibility
+              id="password"
+              placeholder="Enter your password"
+              className="w-full p-3 border border-border bg-bg-elev rounded-lg text-text
+                         focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              value={password}
+              onChange={handleChange}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(s => !s)}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5" style={{ top: '30px' }}
+            >
+              {showPassword ? '🙈' : '👁️'}
+            </button>
+          </div>
+          <div className="text-right text-sm mb-4">
+            <Link to="#" className="text-primary hover:underline">Forgot Password?</Link>
           </div>
           {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
           <button

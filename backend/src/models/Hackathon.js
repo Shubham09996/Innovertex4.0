@@ -35,6 +35,12 @@ const hackathonSchema = new mongoose.Schema({
       ref: 'User',
     },
   ],
+  mentors: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+  ],
   submissions: [
     {
       type: mongoose.Schema.Types.ObjectId,

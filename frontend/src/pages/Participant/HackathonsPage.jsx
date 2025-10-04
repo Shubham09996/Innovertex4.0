@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../../utils/api';
 
 const HackathonsPage = () => {
   const [filters, setFilters] = useState({
@@ -8,54 +9,45 @@ const HackathonsPage = () => {
     eligibility: '',
     prizeMoney: '',
   });
+  const [hackathons, setHackathons] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchHackathons = async () => {
+      try {
+        const data = await api.getHackathons();
+        setHackathons(data);
+        setLoading(false);
+      } catch (err) {
+        setError(err);
+        setLoading(false);
+      }
+    };
+    fetchHackathons();
+  }, []);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
   };
 
-  const dummyHackathons = [
-    {
-      id: 'hack1',
-      title: 'AI Innovation Challenge',
-      description: 'Build the next generation of AI-powered solutions.',
-      tech: ['AI', 'Machine Learning'],
-      mode: 'Online',
-      eligibility: 'Students',
-      prize: '$50,000',
-      registered: 245,
-    },
-    {
-      id: 'hack2',
-      title: 'Sustainable Tech Hack',
-      description: 'Create technology solutions for environmental challenges.',
-      tech: ['Sustainability', 'GreenTech'],
-      mode: 'Offline',
-      eligibility: 'Professionals',
-      prize: '$25,000',
-      registered: 180,
-    },
-    {
-      id: 'hack3',
-      title: 'Web Dev Mastery',
-      description: 'Develop innovative web applications using modern frameworks.',
-      tech: ['Web Dev', 'React', 'Node.js'],
-      mode: 'Online',
-      eligibility: 'All',
-      prize: '$30,000',
-      registered: 300,
-    },
-    {
-      id: 'hack4',
-      title: 'Mobile App Innovation',
-      description: 'Design and build cutting-edge mobile applications.',
-      tech: ['Mobile Dev', 'Flutter', 'React Native'],
-      mode: 'Offline',
-      eligibility: 'Students',
-      prize: '$40,000',
-      registered: 210,
-    },
-  ];
+  const filteredHackathons = hackathons.filter((hackathon) => {
+    return (
+      (filters.technology === '' || (hackathon.tech && hackathon.tech.includes(filters.technology))) &&
+      (filters.mode === '' || hackathon.mode === filters.mode) &&
+      (filters.eligibility === '' || hackathon.eligibility === filters.eligibility) &&
+      (filters.prizeMoney === '' || hackathon.prize === filters.prizeMoney) // This might need more complex logic for range matching
+    );
+  });
+
+  if (loading) {
+    return <main className="flex-grow container mx-auto p-4 pt-24 text-center text-text">Loading hackathons...</main>;
+  }
+
+  if (error) {
+    return <main className="flex-grow container mx-auto p-4 pt-24 text-center text-red-500">Error: {error.message}</main>;
+  }
 
   return (
     <main className="flex-grow container mx-auto p-4 pt-24">
@@ -127,22 +119,17 @@ const HackathonsPage = () => {
 
       {/* Hackathon Listings */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {dummyHackathons.map((hackathon, index) => (
-          <div key={hackathon.id} className="bg-card rounded-xl shadow-lg overflow-hidden hover:shadow-md hover:scale-[1.02] transition-all duration-300">
-            <img src={`https://picsum.photos/seed/hackathon${index}/600/400`} alt={hackathon.title} className="w-full h-48 object-cover" />
+        {filteredHackathons.map((hackathon) => (
+          <div key={hackathon._id} className="bg-card rounded-xl shadow-lg overflow-hidden hover:shadow-md hover:scale-[1.02] transition-all duration-300">
+            <img src={`https://picsum.photos/seed/${hackathon._id}/600/400`} alt={hackathon.name} className="w-full h-48 object-cover" />
             <div className="p-4">
-              <h3 className="text-xl font-semibold text-text mb-2">{hackathon.title}</h3>
+              <h3 className="text-xl font-semibold text-text mb-2">{hackathon.name}</h3>
               <p className="text-muted text-sm mb-4">{hackathon.description}</p>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {hackathon.tech.map((tech, techIndex) => (
-                  <span key={techIndex} className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">{tech}</span>
-                ))}
-              </div>
               <div className="flex justify-between items-center mb-4">
                 <span className="text-primary font-semibold">{hackathon.prize}</span>
-                <span className="text-muted text-sm">{hackathon.registered} registered</span>
+                <span className="text-muted text-sm">Starts: {new Date(hackathon.startDate).toLocaleDateString()}</span>
               </div>
-              <Link to={`/participant/hackathons/${hackathon.id}`} className="w-full px-4 py-2 bg-primary text-white rounded-full font-semibold hover:bg-primary-2 transition-colors duration-200 text-center block">View Details</Link>
+              <Link to={`/participant/hackathons/${hackathon._id}`} className="w-full px-4 py-2 bg-primary text-white rounded-full font-semibold hover:bg-primary-2 transition-colors duration-200 text-center block">View Details</Link>
             </div>
           </div>
         ))}

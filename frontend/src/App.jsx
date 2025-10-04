@@ -67,19 +67,12 @@ export default function App() {
 
   const toggleTheme = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'))
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem('jwtToken');
-    setIsLoggedIn(!!token);
-  }, []);
-
   return (
     <Routes>
       <Route path="/" element={
         <div className="page">
           <Particles />
-          <NavBar theme={theme} onToggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
+          <NavBar theme={theme} onToggleTheme={toggleTheme} />
           <LandingPage theme={theme} onToggleTheme={toggleTheme} />
           <Footer />
         </div>
@@ -87,7 +80,7 @@ export default function App() {
       <Route path="/features" element={
         <div className="page">
           <Particles />
-          <NavBar theme={theme} onToggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
+          <NavBar theme={theme} onToggleTheme={toggleTheme} />
           <FeaturesPage theme={theme} onToggleTheme={toggleTheme} />
           <Footer />
         </div>
@@ -95,7 +88,7 @@ export default function App() {
       <Route path="/winners-gallery" element={
         <div className="page bg-bg">
           <Particles />
-          <NavBar theme={theme} onToggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
+          <NavBar theme={theme} onToggleTheme={toggleTheme} />
           <WinnersGalleryPage />
           <Footer />
         </div>
@@ -103,7 +96,7 @@ export default function App() {
       <Route path="/community" element={
         <div className="page">
           <Particles />
-          <NavBar theme={theme} onToggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
+          <NavBar theme={theme} onToggleTheme={toggleTheme} />
           <CommunityPage />
           <Footer />
         </div>
@@ -122,7 +115,7 @@ export default function App() {
       <Route path="/hackathons" element={
         <div className="page">
           <Particles />
-          <NavBar theme={theme} onToggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
+          <NavBar theme={theme} onToggleTheme={toggleTheme} />
           <HackathonsPage />
           <Footer />
         </div>

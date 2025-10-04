@@ -1,12 +1,15 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useContext } from 'react'; // Import useContext
+import { AuthContext } from '../context/AuthContext'; // Import AuthContext
 
-export default function NavBar({ theme, onToggleTheme, isLoggedIn }) {
+export default function NavBar({ theme, onToggleTheme }) { // Remove isLoggedIn prop
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
+  const { user, logout } = useContext(AuthContext); // Access user and logout from AuthContext
 
   const handleLogout = () => {
-    localStorage.removeItem('jwtToken');
+    logout(); // Call logout from AuthContext
     navigate('/login');
   };
 
@@ -41,15 +44,21 @@ export default function NavBar({ theme, onToggleTheme, isLoggedIn }) {
             {theme === 'dark' ? '☾' : '☀'}
           </button>
 
-          {isLoggedIn ? (
+          {user ? ( // Check if user is logged in
             <>
+              <Link
+                to="/dashboard"
+                className="btn secondary text-text bg-transparent border border-border px-4 py-2.5 rounded-full font-semibold hover:border-primary-300 transition-all"
+              >
+                Dashboard
+              </Link>
               <Link
                 to="/participant/profile"
                 className="w-10 h-10 rounded-full grid place-items-center border border-border bg-bg-elev text-text"
                 aria-label="Profile"
               >
                 <img
-                  src="https://via.placeholder.com/40"
+                  src={user.avatar || `https://ui-avatars.com/api/?name=${user.username}`}
                   alt="Profile"
                   className="w-full h-full object-cover rounded-full"
                 />

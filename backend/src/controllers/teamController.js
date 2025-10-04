@@ -50,6 +50,13 @@ export const createTeam = async (req, res) => {
       await hackathon.save();
     }
 
+    // Add hackathon to user's hackathonsParticipating array
+    const user = await User.findById(req.user.id);
+    if (user && !user.hackathonsParticipating.includes(hackathonId)) {
+      user.hackathonsParticipating.push(hackathonId);
+      await user.save();
+    }
+
     res.status(201).json(createdTeam);
   } catch (err) {
     console.error(err.message);
@@ -131,6 +138,13 @@ export const joinTeam = async (req, res) => {
     if (hackathon && !hackathon.participants.includes(req.user.id)) {
       hackathon.participants.push(req.user.id);
       await hackathon.save();
+    }
+
+    // Add hackathon to user's hackathonsParticipating array
+    const user = await User.findById(req.user.id);
+    if (user && !user.hackathonsParticipating.includes(team.hackathon)) {
+      user.hackathonsParticipating.push(team.hackathon);
+      await user.save();
     }
 
     res.json({ message: 'Joined team successfully', team });
@@ -308,6 +322,29 @@ export const removeMember = async (req, res) => {
     await team.save();
 
     res.json({ message: 'Member removed successfully', team });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+// @desc    Get the team of the currently authenticated user for a specific hackathon
+// @route   GET /api/teams/my-team/:hackathonId
+// @access  Private/Participant
+export const getUserTeam = async (req, res) => {
+  try {
+    const team = await Team.findOne({
+      'members.user': req.user.id,
+      hackathon: req.params.hackathonId,
+    })
+      .populate('leader', 'username email')
+      .populate('members.user', 'username email');
+
+    if (!team) {
+      return res.status(404).json({ message: 'Team not found for this user in this hackathon' });
+    }
+
+    res.json(team);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

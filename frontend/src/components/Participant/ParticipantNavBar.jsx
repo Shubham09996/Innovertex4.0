@@ -1,14 +1,16 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react'; // Import useContext
+import { AuthContext } from '../../context/AuthContext'; // Import AuthContext
 
 export default function ParticipantNavBar({ theme, onToggleTheme }) {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const location = useLocation();
   const currentPath = location.pathname;
+  const { user, logout } = useContext(AuthContext); // Access user and logout from AuthContext
 
   const handleLogout = () => {
-    localStorage.removeItem('jwtToken');
+    logout(); // Call logout from AuthContext
     navigate('/login');
   };
 
@@ -68,43 +70,45 @@ export default function ParticipantNavBar({ theme, onToggleTheme }) {
           </button>
 
           {/* Profile Avatar + Dropdown */}
-          <div className="relative">
-            <button
-              onClick={toggleDropdown}
-              className="w-10 h-10 rounded-full grid place-items-center border border-border bg-bg-elev text-text overflow-hidden cursor-pointer"
-              aria-label="User Profile"
-            >
-              <img
-                src="https://picsum.photos/seed/profile/40/40"
-                alt="Profile"
-                className="w-full h-full object-cover rounded-full"
-              />
-            </button>
-            {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-xl shadow-lg py-1 z-10">
-                <Link
-                  to="/participant/profile"
-                  onClick={toggleDropdown}
-                  className="block px-4 py-2 text-text hover:bg-bg-elev"
-                >
-                  View Profile
-                </Link>
-                <Link
-                  to="/dashboard"
-                  onClick={toggleDropdown}
-                  className="block px-4 py-2 text-text hover:bg-bg-elev"
-                >
-                  Dashboard
-                </Link>
-                <button
-                  onClick={() => { handleLogout(); toggleDropdown(); }}
-                  className="w-full text-left px-4 py-2 text-text hover:bg-bg-elev"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
+          {user && (
+            <div className="relative">
+              <button
+                onClick={toggleDropdown}
+                className="w-10 h-10 rounded-full grid place-items-center border border-border bg-bg-elev text-text overflow-hidden cursor-pointer"
+                aria-label="User Profile"
+              >
+                <img
+                  src={user.avatar || `https://ui-avatars.com/api/?name=${user.username}`}
+                  alt="Profile"
+                  className="w-full h-full object-cover rounded-full"
+                />
+              </button>
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-xl shadow-lg py-1 z-10">
+                  <Link
+                    to="/participant/profile"
+                    onClick={toggleDropdown}
+                    className="block px-4 py-2 text-text hover:bg-bg-elev"
+                  >
+                    View Profile
+                  </Link>
+                  <Link
+                    to="/dashboard"
+                    onClick={toggleDropdown}
+                    className="block px-4 py-2 text-text hover:bg-bg-elev"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => { handleLogout(); toggleDropdown(); }}
+                    className="w-full text-left px-4 py-2 text-text hover:bg-bg-elev"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </header>

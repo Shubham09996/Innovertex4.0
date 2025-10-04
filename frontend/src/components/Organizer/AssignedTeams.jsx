@@ -169,16 +169,12 @@ export default function AssignedTeams({ judgeOrMentor, hackathon }) {
                   )}
                 </div>
                 <div className="flex gap-2">
-                  {judgeOrMentor?.role === 'Judge' ? (
+                  {judgeOrMentor?.role === 'Judge' && (
                     <button 
                       onClick={() => window.open(`/organizer/teams/${team.id}/submission/1`, '_blank')}
                       className="px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg text-sm font-semibold hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-purple-500/25"
                     >
                       📋 View Submission
-                    </button>
-                  ) : (
-                    <button className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg text-sm font-bold hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-green-500/25 transform hover:scale-105">
-                      💬 Mentor Team
                     </button>
                   )}
                 </div>
@@ -191,9 +187,11 @@ export default function AssignedTeams({ judgeOrMentor, hackathon }) {
       {/* Quick Actions */}
       <div className="mt-6 pt-4 border-t border-border">
         <div className="flex gap-3">
-          <button className="flex-1 bg-primary text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-primary-2 transition-colors">
-            {judgeOrMentor?.role === 'Judge' ? 'Bulk Evaluate' : 'Bulk Message'}
-          </button>
+          {judgeOrMentor?.role === 'Judge' && (
+            <button className="flex-1 bg-primary text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-primary-2 transition-colors">
+              Bulk Evaluate
+            </button>
+          )}
           <button className="flex-1 bg-transparent border border-border text-text py-2 px-4 rounded-lg text-sm font-semibold hover:border-primary-300 transition-colors">
             View All Teams
           </button>

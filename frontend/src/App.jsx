@@ -19,6 +19,7 @@ import HackathonDetailPage from './pages/Participant/HackathonDetailPage';
 import WorkspacePage from './pages/Participant/WorkspacePage';
 import ParticipantNavBar from './components/Participant/ParticipantNavBar'; // Import ParticipantNavBar
 import OrganizerNavBar from './components/Organizer/OrganizerNavBar'; // Import OrganizerNavBar
+import JudgeNavBar from './components/Judge/JudgeNavBar'; // Import JudgeNavBar
 import WinnersGalleryPage from './pages/WinnersGallery'; // Import WinnersGalleryPage as named export
 import CommunityPage from './pages/CommunityPage'; // Import CommunityPage
 import AboutPage from './pages/AboutPage'; // Import AboutPage
@@ -34,9 +35,14 @@ import HackathonManagementPage from './pages/Organizer/HackathonManagementPage';
 import EditHackathonPage from './pages/Organizer/EditHackathonPage';
 import SubmissionViewPage from './pages/Organizer/SubmissionViewPage';
 import AnnouncementsPage from './pages/Organizer/AnnouncementsPage';
-import JudgeProfilePage from './pages/Organizer/JudgeProfilePage';
+import OrganizerJudgeProfilePage from './pages/Organizer/JudgeProfilePage';
 import MentorProfilePage from './pages/Organizer/MentorProfilePage';
 import OrganizerProfilePage from './pages/Organizer/OrganizerProfilePage';
+import JudgeProfilePage from './pages/Judge/JudgeProfilePage';
+import JudgeDashboardPage from './pages/Judge/JudgeDashboardPage';
+import JudgeEvaluationsPage from './pages/Judge/JudgeEvaluationsPage';
+import JudgeMentorshipPage from './pages/Judge/JudgeMentorshipPage';
+import JudgeAnalyticsPage from './pages/Judge/JudgeAnalyticsPage';
 import ContactPage from './pages/ContactPage'; // Import ContactPage
 import GlobalLeaderboardPage from './pages/GlobalLeaderboardPage'; // Import GlobalLeaderboardPage
 
@@ -70,6 +76,18 @@ function OrganizerLayout({ children, theme, onToggleTheme }) {
   return (
     <div className="page bg-bg">
       <OrganizerNavBar theme={theme} onToggleTheme={onToggleTheme} />
+      <div className="flex-grow">
+        {children}
+      </div>
+      <Footer />
+    </div>
+  );
+}
+
+function JudgeLayout({ children, theme, onToggleTheme }) {
+  return (
+    <div className="page bg-bg">
+      <JudgeNavBar theme={theme} onToggleTheme={onToggleTheme} />
       <div className="flex-grow">
         {children}
       </div>
@@ -166,12 +184,19 @@ export default function App() {
       <Route path="/organizer/mentors" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><MentorsPage /></OrganizerLayout>} />
       <Route path="/organizer/announcements" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><AnnouncementsPage /></OrganizerLayout>} />
       <Route path="/organizer/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerProfilePage /></OrganizerLayout>} />
-      <Route path="/organizer/judges/:judgeId/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><JudgeProfilePage /></OrganizerLayout>} />
+      <Route path="/organizer/judges/:judgeId/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerJudgeProfilePage /></OrganizerLayout>} />
       <Route path="/organizer/mentors/:mentorId/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><MentorProfilePage /></OrganizerLayout>} />
                 <Route path="/organizer/hackathons/:id/analytics" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><HackathonAnalyticsPage /></OrganizerLayout>} />
                 <Route path="/organizer/hackathons/:id/edit" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><EditHackathonPage /></OrganizerLayout>} />
                 <Route path="/organizer/hackathons/:id" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><HackathonManagementPage /></OrganizerLayout>} />
                 <Route path="/organizer/teams/:teamId/submission/:hackathonId" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><SubmissionViewPage /></OrganizerLayout>} />
+      
+                {/* Judge Routes */}
+                <Route path="/judge/dashboard" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeDashboardPage /></JudgeLayout>} />
+                <Route path="/judge/evaluations" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeEvaluationsPage /></JudgeLayout>} />
+                <Route path="/judge/mentorship" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeMentorshipPage /></JudgeLayout>} />
+                <Route path="/judge/analytics" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeAnalyticsPage /></JudgeLayout>} />
+                <Route path="/judge/profile" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeProfilePage /></JudgeLayout>} />
       
       <Route path="/leaderboard" element={<Navigate to="/participant/global-leaderboard" replace />} />
     </Routes>

@@ -191,6 +191,39 @@ const api = {
     });
     return res.json();
   },
+
+  // Evaluation API functions
+  getSubmissionsForEvaluation: async (hackathonId, token) => {
+    const res = await fetch(`${API_URL}/submissions/hackathon/${hackathonId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return res.json();
+  },
+
+  evaluateSubmission: async (submissionId, evaluationData, token) => {
+    const res = await fetch(`${API_URL}/submissions/${submissionId}/evaluate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(evaluationData),
+    });
+    return res.json();
+  },
+
+  getSubmissionEvaluation: async (submissionId, token) => {
+    const res = await fetch(`${API_URL}/submissions/${submissionId}/evaluation`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return res.json();
+  },
 };
 
 export default api;

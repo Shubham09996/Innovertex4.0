@@ -18,9 +18,25 @@ import LeaderboardPage from './pages/Participant/LeaderboardPage';
 import HackathonDetailPage from './pages/Participant/HackathonDetailPage';
 import WorkspacePage from './pages/Participant/WorkspacePage';
 import ParticipantNavBar from './components/Participant/ParticipantNavBar'; // Import ParticipantNavBar
+import OrganizerNavBar from './components/Organizer/OrganizerNavBar'; // Import OrganizerNavBar
 import WinnersGalleryPage from './pages/WinnersGallery'; // Import WinnersGalleryPage as named export
 import CommunityPage from './pages/CommunityPage'; // Import CommunityPage
 import AboutPage from './pages/AboutPage'; // Import AboutPage
+import OrganizerDashboardPage from './pages/Organizer/OrganizerDashboardPage';
+import OrganizerHackathonsPage from './pages/Organizer/HackathonsPage';
+import CreateHackathonPage from './pages/Organizer/CreateHackathonPage';
+import AnalyticsPage from './pages/Organizer/AnalyticsPage';
+import ParticipantsPage from './pages/Organizer/ParticipantsPage';
+import JudgesPage from './pages/Organizer/JudgesPage';
+import MentorsPage from './pages/Organizer/MentorsPage';
+import HackathonAnalyticsPage from './pages/Organizer/HackathonAnalyticsPage';
+import HackathonManagementPage from './pages/Organizer/HackathonManagementPage';
+import EditHackathonPage from './pages/Organizer/EditHackathonPage';
+import SubmissionViewPage from './pages/Organizer/SubmissionViewPage';
+import AnnouncementsPage from './pages/Organizer/AnnouncementsPage';
+import JudgeProfilePage from './pages/Organizer/JudgeProfilePage';
+import MentorProfilePage from './pages/Organizer/MentorProfilePage';
+import OrganizerProfilePage from './pages/Organizer/OrganizerProfilePage';
 import ContactPage from './pages/ContactPage'; // Import ContactPage
 import GlobalLeaderboardPage from './pages/GlobalLeaderboardPage'; // Import GlobalLeaderboardPage
 
@@ -43,6 +59,18 @@ function ParticipantLayout({ children, theme, onToggleTheme }) {
       <Particles />
       <ParticipantNavBar theme={theme} onToggleTheme={onToggleTheme} />
       <div className="flex-grow flex justify-center items-center">
+        {children}
+      </div>
+      <Footer />
+    </div>
+  );
+}
+
+function OrganizerLayout({ children, theme, onToggleTheme }) {
+  return (
+    <div className="page bg-bg">
+      <OrganizerNavBar theme={theme} onToggleTheme={onToggleTheme} />
+      <div className="flex-grow">
         {children}
       </div>
       <Footer />
@@ -127,6 +155,24 @@ export default function App() {
       <Route path="/participant/global-leaderboard" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><GlobalLeaderboardPage /></ParticipantLayout>} />
       <Route path="/participant/hackathons/:id" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><HackathonDetailPage /></ParticipantLayout>} />
       <Route path="/participant/workspace/:id" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><WorkspacePage /></ParticipantLayout>} />
+      
+      {/* Organizer Routes */}
+      <Route path="/organizer/dashboard" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerDashboardPage /></OrganizerLayout>} />
+      <Route path="/organizer/hackathons" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerHackathonsPage /></OrganizerLayout>} />
+      <Route path="/organizer/hackathons/create" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><CreateHackathonPage /></OrganizerLayout>} />
+      <Route path="/organizer/analytics" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><AnalyticsPage /></OrganizerLayout>} />
+      <Route path="/organizer/participants" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><ParticipantsPage /></OrganizerLayout>} />
+      <Route path="/organizer/judges" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><JudgesPage /></OrganizerLayout>} />
+      <Route path="/organizer/mentors" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><MentorsPage /></OrganizerLayout>} />
+      <Route path="/organizer/announcements" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><AnnouncementsPage /></OrganizerLayout>} />
+      <Route path="/organizer/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerProfilePage /></OrganizerLayout>} />
+      <Route path="/organizer/judges/:judgeId/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><JudgeProfilePage /></OrganizerLayout>} />
+      <Route path="/organizer/mentors/:mentorId/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><MentorProfilePage /></OrganizerLayout>} />
+                <Route path="/organizer/hackathons/:id/analytics" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><HackathonAnalyticsPage /></OrganizerLayout>} />
+                <Route path="/organizer/hackathons/:id/edit" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><EditHackathonPage /></OrganizerLayout>} />
+                <Route path="/organizer/hackathons/:id" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><HackathonManagementPage /></OrganizerLayout>} />
+                <Route path="/organizer/teams/:teamId/submission/:hackathonId" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><SubmissionViewPage /></OrganizerLayout>} />
+      
       <Route path="/leaderboard" element={<Navigate to="/participant/global-leaderboard" replace />} />
     </Routes>
   )

@@ -240,6 +240,7 @@ const WorkspacePage = () => {
           >
             <h2 className="text-3xl font-bold text-text mb-6">Team Details</h2>
             <p className="text-text text-lg mb-4"><strong>Team ID:</strong> <span className="font-mono text-accent select-all">{teamId || 'N/A'}</span></p>
+            <p className="text-text text-lg mb-4"><strong>Team Code:</strong> <span className="font-mono text-accent select-all">FINTECH-XYZ</span></p>
             <h3 className="text-xl font-semibold text-text mt-6 mb-3">Members:</h3>
             <ul className="space-y-2 text-muted">
               {teamMembers.map((member) => (

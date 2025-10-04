@@ -54,7 +54,8 @@ const MyHackathonsPage = () => {
               
               <div className="text-base text-text mb-4 space-y-2">
                 <p className="flex items-center gap-2"><strong><span role="img" aria-label="leader">👑</span> Leader:</strong> {hackathon.teamLeader}</p>
-                <p className="flex items-center gap-2"><strong><span role="img" aria-label="code">🔑</span> Code:</strong> <span className="font-mono text-accent select-all">{hackathon.teamCode}</span></p>
+                <p className="flex items-center gap-2"><strong><span role="img" aria-label="id">🆔</span> Team ID:</strong> <span className="font-mono text-accent select-all">{hackathon.teamId}</span></p>
+                <p className="flex items-center gap-2"><strong><span role="img" aria-label="code">🔑</span> Team Code:</strong> <span className="font-mono text-accent select-all">{hackathon.teamCode}</span></p>
                 <p className="flex items-center gap-2 mt-4"><strong><span role="img" aria-label="members">👥</span> Members:</strong></p>
                 <ul className="list-disc list-inside pl-6 text-muted">
                   {hackathon.teamMembers.map(member => (

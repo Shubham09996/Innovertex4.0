@@ -25,7 +25,7 @@ export default function NavBar({ theme, onToggleTheme, isLoggedIn }) {
           <a href="#" className="text-text hover:text-primary transition-colors">Winners Gallery</a>
           <Link to="/features" className="text-text hover:text-primary transition-colors">Features</Link>
           <a href="#" className="text-text hover:text-primary transition-colors">Leaderboard</a>
-          <a href="#" className="text-text hover:text-primary transition-colors">Community</a>
+          <Link to="/community" className="text-text hover:text-primary transition-colors">Community</Link>
           <a href="#" className="text-text hover:text-primary transition-colors">Contact</a>
         </nav>
 

@@ -16,6 +16,7 @@ import ProfilePage from './pages/Participant/ProfilePage';
 import LeaderboardPage from './pages/Participant/LeaderboardPage';
 import HackathonDetailPage from './pages/Participant/HackathonDetailPage';
 import WorkspacePage from './pages/Participant/WorkspacePage';
+import CommunityPage from './pages/CommunityPage';
 import ParticipantNavBar from './components/Participant/ParticipantNavBar'; // Import ParticipantNavBar
 
 function AuthLayout({ children, theme, onToggleTheme }) {
@@ -93,6 +94,13 @@ export default function App() {
       <Route path="/participant/leaderboard" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><LeaderboardPage /></ParticipantLayout>} />
       <Route path="/participant/hackathons/:id" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><HackathonDetailPage /></ParticipantLayout>} />
       <Route path="/participant/workspace/:id" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><WorkspacePage /></ParticipantLayout>} />
+      <Route path="/community" element={
+        <div className="page">
+          <NavBar theme={theme} onToggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
+          <CommunityPage theme={theme} onToggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
+          <Footer />
+        </div>
+      } />
     </Routes>
   )
 }

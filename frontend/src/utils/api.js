@@ -24,6 +24,29 @@ const api = {
     return res.json();
   },
 
+  createTeam: async (name, hackathonId, token) => {
+    const res = await fetch(`${API_URL}/teams`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name, hackathonId }),
+    });
+    return res.json();
+  },
+
+  joinTeam: async (teamId, token) => {
+    const res = await fetch(`${API_URL}/teams/${teamId}/join`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return res.json();
+  },
+
   // Add other API calls here
 };
 

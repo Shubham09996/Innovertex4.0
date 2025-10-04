@@ -1,18 +1,195 @@
-import React from 'react';
-import NavBar from '../../components/NavBar';
-import Footer from '../../components/Footer';
+import React, { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const HackathonDetailPage = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [isRegistered, setIsRegistered] = useState(false); // Hardcoded for now
+  const [showRegistrationOptions, setShowRegistrationOptions] = useState(false);
+  const [teamName, setTeamName] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
+  const [registeredTeam, setRegisteredTeam] = useState('Innovators Guild'); // Dummy team name if registered
+
+  // Dummy Hackathon Data
+  const hackathon = {
+    id: id,
+    title: 'AI Innovation Challenge',
+    description: 'Build the next generation of AI-powered solutions, tackle real-world problems with artificial intelligence and machine learning expertise. This hackathon is a perfect opportunity to showcase your innovative ideas and skills.',
+    longDescription: 'This hackathon challenges participants to develop cutting-edge AI solutions. Whether you are passionate about natural language processing, computer vision, or predictive analytics, this is your platform to innovate. We encourage interdisciplinary teams and welcome participants from all skill levels. Mentors will be available to guide you through the process.',
+    dates: 'October 20-22, 2025',
+    location: 'Online / Virtual',
+    prize: '$50,000',
+    eligibility: 'Students & Professionals',
+    technologies: ['Python', 'TensorFlow', 'PyTorch', 'React', 'AWS'],
+    imageUrl: `https://picsum.photos/seed/${id}/800/400`,
+  };
+
+  const handleRegisterClick = () => {
+    setShowRegistrationOptions(true);
+  };
+
+  const handleCreateTeam = (e) => {
+    e.preventDefault();
+    // Hardcoded logic for now
+    if (teamName) {
+      setIsRegistered(true);
+      setRegisteredTeam(teamName);
+      setShowRegistrationOptions(false);
+      alert(`Team '${teamName}' created and registered for ${hackathon.title}!`);
+      navigate(`/participant/my-hackathons/${hackathon.id}`); // Redirect to specific hackathon's my-hackathons page
+    }
+  };
+
+  const handleJoinTeam = (e) => {
+    e.preventDefault();
+    // Hardcoded logic for now
+    if (inviteCode) {
+      setIsRegistered(true);
+      setRegisteredTeam(`Joined team with invite code: ${inviteCode}`);
+      setShowRegistrationOptions(false);
+      alert(`Joined team with invite code '${inviteCode}' for ${hackathon.title}!`);
+      navigate(`/participant/my-hackathons/${hackathon.id}`); // Redirect to specific hackathon's my-hackathons page
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-bg">
-      <NavBar />
-      <main className="flex-grow container mx-auto p-4 pt-20">
-        <h1 className="text-4xl font-bold text-text mb-8">Hackathon Details</h1>
-        <p className="text-muted">Details about a specific hackathon and registration options.</p>
-        {/* Add hackathon details and registration forms here */}
-      </main>
-      <Footer />
-    </div>
+    <main className="flex-grow container mx-auto max-w-2xl pt-20">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="bg-card rounded-xl shadow-lg p-6 my-8"
+      >
+        <h1 className="text-4xl font-bold text-text mb-4">{hackathon.title}</h1>
+        <p className="text-muted text-lg mb-8">{hackathon.description}</p>
+
+        <div className="overflow-hidden mb-8 rounded-lg">
+          <img src={hackathon.imageUrl} alt={hackathon.title} className="w-full h-80 object-cover" />
+          <div className="p-6">
+            <h2 className="text-2xl font-semibold text-text mb-4">About the Hackathon</h2>
+            <p className="text-text mb-6">{hackathon.longDescription}</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <p className="text-muted font-medium">Dates:</p>
+                <p className="text-text">{hackathon.dates}</p>
+              </div>
+              <div>
+                <p className="text-muted font-medium">Location:</p>
+                <p className="text-text">{hackathon.location}</p>
+              </div>
+              <div>
+                <p className="text-muted font-medium">Prize Pool:</p>
+                <p className="text-primary font-bold text-lg">{hackathon.prize}</p>
+              </div>
+              <div>
+                <p className="text-muted font-medium">Eligibility:</p>
+                <p className="text-text">{hackathon.eligibility}</p>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-muted font-medium mb-2">Key Technologies:</p>
+              <div className="flex flex-wrap gap-2">
+                {hackathon.technologies.map((tech, index) => (
+                  <span key={index} className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full">{tech}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Registration Section */}
+          <div className="mt-8 p-6 bg-bg-elev rounded-lg border border-border">
+            <h2 className="text-2xl font-semibold text-text mb-4">Registration</h2>
+            <AnimatePresence mode="wait">
+              {!isRegistered ? (
+                !showRegistrationOptions ? (
+                  <motion.button
+                    key="register-button"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    onClick={handleRegisterClick}
+                    className="px-8 py-4 bg-primary text-white rounded-full font-bold text-lg hover:bg-primary-2 transition-colors duration-200"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Register for Hackathon
+                  </motion.button>
+                ) : (
+                  <motion.div
+                    key="registration-options"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.3 }}
+                    className="bg-card rounded-xl shadow-lg p-6 max-w-md mx-auto flex flex-col gap-6"
+                  >
+                    {/* Create Team */}
+                    <div className="border border-border rounded-lg p-4">
+                      <h3 className="text-xl font-semibold text-text mb-3">Create New Team</h3>
+                      <form onSubmit={handleCreateTeam}>
+                        <input
+                          type="text"
+                          placeholder="Team Name"
+                          value={teamName}
+                          onChange={(e) => setTeamName(e.target.value)}
+                          className="w-full p-3 rounded-lg bg-bg-elev border border-border text-text mb-3 focus:outline-none focus:ring-2 focus:ring-primary"
+                          required
+                        />
+                        <motion.button
+                          type="submit"
+                          className="w-full px-4 py-2 bg-purple-600 text-white rounded-full font-semibold hover:bg-purple-700 transition-colors duration-200"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Create & Register
+                        </motion.button>
+                      </form>
+                    </div>
+                    {/* Join Team */}
+                    <div className="border border-border rounded-lg p-4">
+                      <h3 className="text-xl font-semibold text-text mb-3">Want to Join a Team?</h3>
+                      <form onSubmit={handleJoinTeam}>
+                        <input
+                          type="text"
+                          placeholder="Team Invite Code / ID"
+                          value={inviteCode}
+                          onChange={(e) => setInviteCode(e.target.value)}
+                          className="w-full p-3 rounded-lg bg-bg-elev border border-border text-text mb-3 focus:outline-none focus:ring-2 focus:ring-primary"
+                          required
+                        />
+                        <motion.button
+                          type="submit"
+                          className="w-full px-4 py-2 bg-green-600 text-white rounded-full font-semibold hover:bg-green-700 transition-colors duration-200"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Join Team
+                        </motion.button>
+                      </form>
+                    </div>
+                  </motion.div>
+                )
+              ) : (
+                <motion.p
+                  key="registered-message"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-text text-lg"
+                >
+                  You are already registered for this hackathon with team: <span className="font-bold text-primary">{registeredTeam}</span>
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </motion.div>
+    </main>
   );
 };
 

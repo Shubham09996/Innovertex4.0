@@ -28,11 +28,8 @@ export default function ParticipantNavBar({ theme, onToggleTheme }) {
 
         {/* CENTER - Links */}
         <nav className="hidden md:flex items-center gap-5 flex-none">
-          <Link to="/dashboard" className="text-text hover:text-primary transition-colors">Dashboard</Link>
-          <Link to="/participant/hackathons" className="text-text hover:text-primary transition-colors">Hackathons</Link>
           <Link to="/participant/my-hackathons" className="text-text hover:text-primary transition-colors">My Hackathons</Link>
-          <Link to="/participant/team" className="text-text hover:text-primary transition-colors">My Team</Link>
-          <Link to="/participant/profile" className="text-text hover:text-primary transition-colors">Profile</Link>
+          <Link to="/community" className="text-text hover:text-primary transition-colors">Community</Link>
           <Link to="/participant/leaderboard" className="text-text hover:text-primary transition-colors">Leaderboard</Link>
         </nav>
 
@@ -89,6 +86,13 @@ export default function ParticipantNavBar({ theme, onToggleTheme }) {
                   className="block px-4 py-2 text-text hover:bg-bg-elev"
                 >
                   View Profile
+                </Link>
+                <Link
+                  to="/dashboard"
+                  onClick={toggleDropdown}
+                  className="block px-4 py-2 text-text hover:bg-bg-elev"
+                >
+                  Dashboard
                 </Link>
                 <button
                   onClick={() => { handleLogout(); toggleDropdown(); }}

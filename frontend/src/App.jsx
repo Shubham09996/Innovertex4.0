@@ -104,7 +104,14 @@ export default function App() {
       <Route path="/about" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><AboutPage /></AuthLayout>} />
       <Route path="/auth/oauth-callback" element={<OAuthCallback />} />
       <Route path="/dashboard" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><ParticipantDashboardPage /></ParticipantLayout>} />
-      <Route path="/participant/hackathons" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><HackathonsPage /></ParticipantLayout>} />
+      <Route path="/hackathons" element={
+        <div className="page">
+          <NavBar theme={theme} onToggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
+          <HackathonsPage />
+          <Footer />
+        </div>
+      } />
+      <Route path="/participant/community" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><CommunityPage /></ParticipantLayout>} />
       <Route path="/participant/my-hackathons" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><MyHackathonsPage /></ParticipantLayout>} />
       <Route path="/participant/team" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><TeamPage /></ParticipantLayout>} />
       <Route path="/participant/profile" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><ProfilePage /></ParticipantLayout>} />

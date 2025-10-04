@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import NavBar from '../components/NavBar';
-import Footer from '../components/Footer';
 
 const CommunityPage = ({ theme, onToggleTheme, isLoggedIn }) => {
   const [selectedHackathon, setSelectedHackathon] = useState(null);
@@ -199,8 +197,7 @@ const CommunityPage = ({ theme, onToggleTheme, isLoggedIn }) => {
 
   if (!selectedHackathon) {
     return (
-      <div className="min-h-screen flex flex-col bg-bg pt-[80px]">
-        <NavBar theme={theme} onToggleTheme={onToggleTheme} isLoggedIn={isLoggedIn} />
+      <div className="min-h-screen flex flex-col bg-bg">
         <div className="flex-grow">
           {/* Hero Section */}
           <div className="relative py-20 text-center bg-gradient-to-br from-bg to-bg-elev overflow-hidden">
@@ -265,14 +262,12 @@ const CommunityPage = ({ theme, onToggleTheme, isLoggedIn }) => {
             </div>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg pt-[80px]">
-      <NavBar theme={theme} onToggleTheme={onToggleTheme} isLoggedIn={isLoggedIn} />
+    <div className="min-h-screen flex flex-col bg-bg">
       <div className="flex-grow">
         {/* Header */}
         <div className="bg-gradient-to-r from-primary/10 to-primary-2/10 py-8">

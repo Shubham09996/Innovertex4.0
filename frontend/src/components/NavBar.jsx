@@ -24,7 +24,7 @@ export default function NavBar({ theme, onToggleTheme, isLoggedIn }) {
 
         {/* CENTER - Links */}
         <nav className="hidden md:flex items-center gap-5 flex-none">
-          <Link to="/participant/hackathons" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/participant/hackathons' ? 'active-nav-item' : ''}`}>Hackathons</Link>
+          <Link to="/hackathons" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/hackathons' ? 'active-nav-item' : ''}`}>Hackathons</Link>
           <Link to="/winners-gallery" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/winners-gallery' ? 'active-nav-item' : ''}`}>Winners Gallery</Link>
           <Link to="/about" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/about' ? 'active-nav-item' : ''}`}>About</Link>
           <Link to="/leaderboard" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/leaderboard' ? 'active-nav-item' : ''}`}>Leaderboard</Link>

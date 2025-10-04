@@ -7,6 +7,7 @@ import LandingPage from './pages/LandingPage'
 import FeaturesPage from './pages/FeaturesPage'
 import NavBar from './components/NavBar'
 import Footer from './components/Footer'
+import Particles from './components/Particles'; // Import Particles component
 import OAuthCallback from './pages/Auth/OAuthCallback.jsx'; // Import the new component
 import ParticipantDashboardPage from './pages/Participant/ParticipantDashboardPage';
 import HackathonsPage from './pages/Participant/HackathonsPage';
@@ -26,6 +27,7 @@ import GlobalLeaderboardPage from './pages/GlobalLeaderboardPage'; // Import Glo
 function AuthLayout({ children, theme, onToggleTheme }) {
   return (
     <div className="page">
+      <Particles />
       <NavBar theme={theme} onToggleTheme={onToggleTheme} />
       <div className="flex-grow pt-[100px] pb-[100px] flex justify-center items-center">
         {children}
@@ -37,7 +39,8 @@ function AuthLayout({ children, theme, onToggleTheme }) {
 
 function ParticipantLayout({ children, theme, onToggleTheme }) {
   return (
-    <div className="page bg-bg">
+    <div className="page">
+      <Particles />
       <ParticipantNavBar theme={theme} onToggleTheme={onToggleTheme} />
       <div className="flex-grow flex justify-center items-center">
         {children}
@@ -75,6 +78,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={
         <div className="page">
+          <Particles />
           <NavBar theme={theme} onToggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
           <LandingPage theme={theme} onToggleTheme={toggleTheme} />
           <Footer />
@@ -82,13 +86,15 @@ export default function App() {
       } />
       <Route path="/features" element={
         <div className="page">
+          <Particles />
           <NavBar theme={theme} onToggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
           <FeaturesPage theme={theme} onToggleTheme={toggleTheme} />
           <Footer />
         </div>
       } />
       <Route path="/winners-gallery" element={
-        <div className="page">
+        <div className="page bg-bg">
+          <Particles />
           <NavBar theme={theme} onToggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
           <WinnersGalleryPage />
           <Footer />
@@ -96,6 +102,7 @@ export default function App() {
       } />
       <Route path="/community" element={
         <div className="page">
+          <Particles />
           <NavBar theme={theme} onToggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
           <CommunityPage />
           <Footer />
@@ -105,10 +112,16 @@ export default function App() {
       <Route path="/signup" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><Signup /></AuthLayout>} />
       <Route path="/about" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><AboutPage /></AuthLayout>} />
       <Route path="/contact" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><ContactPage /></AuthLayout>} />
-      <Route path="/auth/oauth-callback" element={<OAuthCallback />} />
+      <Route path="/auth/oauth-callback" element={
+        <div className="page">
+          <Particles />
+          <OAuthCallback />
+        </div>
+      } />
       <Route path="/dashboard" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><ParticipantDashboardPage /></ParticipantLayout>} />
       <Route path="/hackathons" element={
         <div className="page">
+          <Particles />
           <NavBar theme={theme} onToggleTheme={toggleTheme} isLoggedIn={isLoggedIn} />
           <HackathonsPage />
           <Footer />

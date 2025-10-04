@@ -100,7 +100,7 @@ export default function WinnersGallery() {
   const [selected, setSelected] = useState(null);
 
   return (
-    <div className="min-h-screen bg-bg text-text px-4 py-16">
+    <div className="min-h-screen text-text px-4 py-16">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}

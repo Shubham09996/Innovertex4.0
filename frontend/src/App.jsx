@@ -1,6 +1,6 @@
 import './App.css'
 import { useEffect, useState } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Auth/Login'
 import Signup from './pages/Auth/Signup'
 import LandingPage from './pages/LandingPage'
@@ -20,6 +20,8 @@ import ParticipantNavBar from './components/Participant/ParticipantNavBar'; // I
 import WinnersGalleryPage from './pages/WinnersGallery'; // Import WinnersGalleryPage as named export
 import CommunityPage from './pages/CommunityPage'; // Import CommunityPage
 import AboutPage from './pages/AboutPage'; // Import AboutPage
+import ContactPage from './pages/ContactPage'; // Import ContactPage
+import GlobalLeaderboardPage from './pages/GlobalLeaderboardPage'; // Import GlobalLeaderboardPage
 
 function AuthLayout({ children, theme, onToggleTheme }) {
   return (
@@ -102,6 +104,7 @@ export default function App() {
       <Route path="/login" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><Login /></AuthLayout>} />
       <Route path="/signup" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><Signup /></AuthLayout>} />
       <Route path="/about" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><AboutPage /></AuthLayout>} />
+      <Route path="/contact" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><ContactPage /></AuthLayout>} />
       <Route path="/auth/oauth-callback" element={<OAuthCallback />} />
       <Route path="/dashboard" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><ParticipantDashboardPage /></ParticipantLayout>} />
       <Route path="/hackathons" element={
@@ -115,9 +118,10 @@ export default function App() {
       <Route path="/participant/my-hackathons" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><MyHackathonsPage /></ParticipantLayout>} />
       <Route path="/participant/team" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><TeamPage /></ParticipantLayout>} />
       <Route path="/participant/profile" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><ProfilePage /></ParticipantLayout>} />
-      <Route path="/participant/leaderboard" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><LeaderboardPage /></ParticipantLayout>} />
+      <Route path="/participant/global-leaderboard" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><GlobalLeaderboardPage /></ParticipantLayout>} />
       <Route path="/participant/hackathons/:id" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><HackathonDetailPage /></ParticipantLayout>} />
       <Route path="/participant/workspace/:id" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><WorkspacePage /></ParticipantLayout>} />
+      <Route path="/leaderboard" element={<Navigate to="/participant/global-leaderboard" replace />} />
     </Routes>
   )
 }

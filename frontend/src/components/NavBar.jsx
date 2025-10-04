@@ -27,7 +27,7 @@ export default function NavBar({ theme, onToggleTheme, isLoggedIn }) {
           <Link to="/hackathons" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/hackathons' ? 'active-nav-item' : ''}`}>Hackathons</Link>
           <Link to="/winners-gallery" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/winners-gallery' ? 'active-nav-item' : ''}`}>Winners Gallery</Link>
           <Link to="/about" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/about' ? 'active-nav-item' : ''}`}>About</Link>
-          <Link to="/leaderboard" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/leaderboard' ? 'active-nav-item' : ''}`}>Leaderboard</Link>
+          <Link to="/participant/global-leaderboard" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/participant/global-leaderboard' ? 'active-nav-item' : ''}`}>Leaderboard</Link>
           <Link to="/contact" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/contact' ? 'active-nav-item' : ''}`}>Contact</Link>
         </nav>
 

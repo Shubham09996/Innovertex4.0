@@ -32,7 +32,7 @@ export default function ParticipantNavBar({ theme, onToggleTheme }) {
         <nav className="hidden md:flex items-center gap-5 flex-none">
           <Link to="/participant/my-hackathons" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/participant/my-hackathons' ? 'active-nav-item' : ''}`}>My Hackathons</Link>
           <Link to="/participant/community" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/participant/community' ? 'active-nav-item' : ''}`}>Community</Link>
-          <Link to="/participant/leaderboard" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/participant/leaderboard' ? 'active-nav-item' : ''}`}>Leaderboard</Link>
+          <Link to="/participant/global-leaderboard" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/participant/global-leaderboard' ? 'active-nav-item' : ''}`}>Leaderboard</Link>
         </nav>
 
         {/* RIGHT - Theme + Notifications + Profile */}

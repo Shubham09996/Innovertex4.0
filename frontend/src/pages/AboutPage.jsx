@@ -303,7 +303,7 @@ export default function AboutPage() {
               transition={{ duration: 0.8 }}
               className={`text-4xl md:text-6xl font-extrabold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-2`}
             >
-              Innovortex 4.0 — The Ultimate Hackathon Platform
+              HackVerse — The Ultimate Hackathon Platform
             </motion.h1>
 
             <motion.p

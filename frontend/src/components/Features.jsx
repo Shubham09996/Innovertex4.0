@@ -2,14 +2,14 @@ import React from 'react'
 
 export default function Features() {
   const items = [
-    { emoji: '👥', bg: 'bg-gradient-to-br from-purple-400/20 to-purple-700/20', shadow: 'shadow-lg shadow-purple-500/25', title: 'Team Collaboration', desc: 'Form teams, invite members, and collaborate seamlessly with real-time tools and shared workspaces.' },
-    { emoji: '🎥', bg: 'bg-gradient-to-br from-pink-400/20 to-purple-500/20', shadow: 'shadow-lg shadow-purple-500/25', title: 'Virtual Mentorship', desc: 'Connect with industry experts through video calls, get guidance, and accelerate your project development.' },
-    { emoji: '💬', bg: 'bg-gradient-to-br from-cyan-400/20 to-blue-500/20', shadow: 'shadow-lg shadow-blue-500/25', title: 'Real-time Chat', desc: 'Stay connected with your team and mentors through integrated chat with file sharing and notifications.' },
-    { emoji: '🏆', bg: 'bg-gradient-to-br from-emerald-400/20 to-green-500/20', shadow: 'shadow-lg shadow-green-500/25', title: 'Smart Judging', desc: 'Comprehensive evaluation system with rubrics, scoring, and transparent leaderboards for fair competition.' },
-    { emoji: '✨', bg: 'bg-gradient-to-br from-yellow-300/20 to-amber-500/20', shadow: 'shadow-lg shadow-amber-500/25', title: 'Project Showcase', desc: 'Present your innovations with rich media support, live demos, and detailed documentation tools.' },
-    { emoji: '⚡', bg: 'bg-gradient-to-br from-purple-400/20 to-purple-700/20', shadow: 'shadow-lg shadow-purple-500/25', title: 'Lightning Fast', desc: 'Built for speed with real-time updates, instant notifications, and seamless user experience.' },
-    { emoji: '🔒', bg: 'bg-gradient-to-br from-pink-400/20 to-purple-500/20', shadow: 'shadow-lg shadow-purple-500/25', title: 'Secure Platform', desc: 'Enterprise-grade security with role-based access, data encryption, and privacy protection.' },
-    { emoji: '🌐', bg: 'bg-gradient-to-br from-cyan-400/20 to-blue-500/20', shadow: 'shadow-lg shadow-blue-500/25', title: 'Global Community', desc: 'Join hackers worldwide, participate in international events, and build a global network.' },
+    { emoji: '👥', bg: 'bg-gradient-to-br from-purple-400/20 to-purple-700/20', shadow: 'shadow-lg shadow-purple-500/25', title: 'Team Collaboration', desc: 'Form teams and collaborate seamlessly with real-time tools.' },
+    { emoji: '🎥', bg: 'bg-gradient-to-br from-pink-400/20 to-purple-500/20', shadow: 'shadow-lg shadow-purple-500/25', title: 'Virtual Mentorship', desc: 'Connect with industry experts and get guidance.' },
+    { emoji: '💬', bg: 'bg-gradient-to-br from-cyan-400/20 to-blue-500/20', shadow: 'shadow-lg shadow-blue-500/25', title: 'Real-time Chat', desc: 'Stay connected with integrated chat and notifications.' },
+    { emoji: '🏆', bg: 'bg-gradient-to-br from-emerald-400/20 to-green-500/20', shadow: 'shadow-lg shadow-green-500/25', title: 'Smart Judging', desc: 'Comprehensive evaluation with transparent leaderboards.' },
+    { emoji: '✨', bg: 'bg-gradient-to-br from-yellow-300/20 to-amber-500/20', shadow: 'shadow-lg shadow-amber-500/25', title: 'Project Showcase', desc: 'Present innovations with rich media support.' },
+    { emoji: '⚡', bg: 'bg-gradient-to-br from-purple-400/20 to-purple-700/20', shadow: 'shadow-lg shadow-purple-500/25', title: 'Lightning Fast', desc: 'Built for speed with real-time updates.' },
+    { emoji: '🔒', bg: 'bg-gradient-to-br from-pink-400/20 to-purple-500/20', shadow: 'shadow-lg shadow-purple-500/25', title: 'Secure Platform', desc: 'Enterprise-grade security and data encryption.' },
+    { emoji: '🌐', bg: 'bg-gradient-to-br from-cyan-400/20 to-blue-500/20', shadow: 'shadow-lg shadow-blue-500/25', title: 'Global Community', desc: 'Join hackers worldwide and build networks.' },
   ]
   return (
     <section className="py-14 overflow-hidden">

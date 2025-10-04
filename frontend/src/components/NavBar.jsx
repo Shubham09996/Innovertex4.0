@@ -1,7 +1,9 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 
 export default function NavBar({ theme, onToggleTheme, isLoggedIn }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   const handleLogout = () => {
     localStorage.removeItem('jwtToken');
@@ -22,10 +24,11 @@ export default function NavBar({ theme, onToggleTheme, isLoggedIn }) {
 
         {/* CENTER - Links */}
         <nav className="hidden md:flex items-center gap-5 flex-none">
-          <Link to="/participant/hackathons" className="text-text hover:text-primary transition-colors">Hackathons</Link>
-          <Link to="/winners-gallery" className="text-text hover:text-primary transition-colors">Winners Gallery</Link>
-          <a href="#" className="text-text hover:text-primary transition-colors">Leaderboard</a>
-          <a href="#" className="text-text hover:text-primary transition-colors">Contact</a>
+          <Link to="/participant/hackathons" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/participant/hackathons' ? 'active-nav-item' : ''}`}>Hackathons</Link>
+          <Link to="/winners-gallery" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/winners-gallery' ? 'active-nav-item' : ''}`}>Winners Gallery</Link>
+          <Link to="/about" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/about' ? 'active-nav-item' : ''}`}>About</Link>
+          <Link to="/leaderboard" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/leaderboard' ? 'active-nav-item' : ''}`}>Leaderboard</Link>
+          <Link to="/contact" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/contact' ? 'active-nav-item' : ''}`}>Contact</Link>
         </nav>
 
         {/* RIGHT - Theme + Auth */}

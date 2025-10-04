@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import Hero from '../components/Hero'
 import Features from '../components/Features'
 import Testimonials from '../components/Testimonials'
-import Sponsors from '../components/Sponsors'
 import CTA from '../components/CTA'
 
 export default function LandingPage({ theme, onToggleTheme }) {
@@ -13,7 +12,6 @@ export default function LandingPage({ theme, onToggleTheme }) {
         <Hero />
         <Features />
         <Testimonials />
-        <Sponsors />
       </div>
     </div>
   )

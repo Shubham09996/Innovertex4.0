@@ -62,4 +62,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-a { color: inherit; text-decoration: none; }
+.active-nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: -6px; /* Adjust as needed */
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--primary); /* Use theme primary color */
+  border-radius: 9999px; /* For rounded ends */
+}

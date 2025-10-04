@@ -449,7 +449,6 @@ const CommunityPage = ({ theme, onToggleTheme, isLoggedIn }) => {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

@@ -1,9 +1,11 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import React, { useState } from 'react';
 
 export default function ParticipantNavBar({ theme, onToggleTheme }) {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   const handleLogout = () => {
     localStorage.removeItem('jwtToken');
@@ -20,7 +22,7 @@ export default function ParticipantNavBar({ theme, onToggleTheme }) {
 
         {/* LEFT - Logo */}
         <div className="flex items-center gap-2 font-display font-bold flex-1">
-          <Link to="/" className="flex items-center gap-2 cursor-pointer">
+          <Link to="/" className={`flex items-center gap-2 cursor-pointer ${currentPath === '/' ? 'active-nav-item' : ''}`}>
             <span className="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-400 to-purple-700">⚡</span>
             <span>HackVerse</span>
           </Link>
@@ -28,9 +30,9 @@ export default function ParticipantNavBar({ theme, onToggleTheme }) {
 
         {/* CENTER - Links */}
         <nav className="hidden md:flex items-center gap-5 flex-none">
-          <Link to="/participant/my-hackathons" className="text-text hover:text-primary transition-colors">My Hackathons</Link>
-          <Link to="/community" className="text-text hover:text-primary transition-colors">Community</Link>
-          <Link to="/participant/leaderboard" className="text-text hover:text-primary transition-colors">Leaderboard</Link>
+          <Link to="/participant/my-hackathons" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/participant/my-hackathons' ? 'active-nav-item' : ''}`}>My Hackathons</Link>
+          <Link to="/community" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/community' ? 'active-nav-item' : ''}`}>Community</Link>
+          <Link to="/participant/leaderboard" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/participant/leaderboard' ? 'active-nav-item' : ''}`}>Leaderboard</Link>
         </nav>
 
         {/* RIGHT - Theme + Notifications + Profile */}

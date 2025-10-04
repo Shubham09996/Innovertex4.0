@@ -41,7 +41,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center text-muted">
-        <div>© 2024 HackVerse. All rights reserved. Built with ❤ for innovators.</div>
+        <div>© 2025 HackVerse. All rights reserved. Built with ❤ for innovators.</div>
         <div className="flex gap-4">
           <a href="#" className="hover:text-primary transition-colors">Terms</a>
           <a href="#" className="hover:text-primary transition-colors">Privacy</a>

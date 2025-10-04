@@ -14,18 +14,17 @@ export default function NavBar({ theme, onToggleTheme, isLoggedIn }) {
         
         {/* LEFT - Logo */}
         <div className="flex items-center gap-2 font-display font-bold flex-1">
-          <span className="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-400 to-purple-700">⚡</span>
-          <span>HackVerse</span>
+          <Link to="/" className="flex items-center gap-2 text-text hover:text-primary transition-colors">
+            <span className="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-400 to-purple-700">⚡</span>
+            <span>HackVerse</span>
+          </Link>
         </div>
 
         {/* CENTER - Links */}
         <nav className="hidden md:flex items-center gap-5 flex-none">
-          <Link to="/" className="text-text hover:text-primary transition-colors">Home</Link>
-          <a href="#" className="text-text hover:text-primary transition-colors">Hackathons</a>
-          <a href="#" className="text-text hover:text-primary transition-colors">Winners Gallery</a>
-          <Link to="/features" className="text-text hover:text-primary transition-colors">Features</Link>
+          <Link to="/participant/hackathons" className="text-text hover:text-primary transition-colors">Hackathons</Link>
+          <Link to="/winners-gallery" className="text-text hover:text-primary transition-colors">Winners Gallery</Link>
           <a href="#" className="text-text hover:text-primary transition-colors">Leaderboard</a>
-          <Link to="/community" className="text-text hover:text-primary transition-colors">Community</Link>
           <a href="#" className="text-text hover:text-primary transition-colors">Contact</a>
         </nav>
 

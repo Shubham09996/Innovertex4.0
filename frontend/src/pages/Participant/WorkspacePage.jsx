@@ -1,553 +1,408 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import api from '../../utils/api';
-import { AuthContext } from '../../context/AuthContext';
-import { ChatContext } from '../../context/ChatContext';
+import React, { useState, useEffect, useContext } from "react";
+import { useSearchParams } from "react-router-dom";
+import api from "../../utils/api";
+import { AuthContext } from "../../context/AuthContext";
+import { ChatContext } from "../../context/ChatContext";
+import { SocketContext } from "../../context/SocketContext";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 
-const WorkspacePage = () => {
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const teamId = queryParams.get('teamId');
-  const hackathonId = queryParams.get('hackathonId');
-
-  const { user, token, loading: authLoading } = useContext(AuthContext);
-  const { socket, teamMessages, mentorMessages, joinTeamChat, sendTeamMessage, joinMentorChat, sendMentorMessage, loadHistoricalTeamMessages, loadHistoricalMentorMessages } = useContext(ChatContext);
-
-  const [submission, setSubmission] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showSubmissionModal, setShowSubmissionModal] = useState(false);
-  const [submissionLink, setSubmissionLink] = useState('');
-  const [submissionMessage, setSubmissionMessage] = useState(null);
-  const [showMentorChatModal, setShowMentorChatModal] = useState(false);
-  const [showTeamChatModal, setShowTeamChatModal] = useState(false);
-  const [teamChatMessage, setTeamChatMessage] = useState('');
-  const [mentorChatMessage, setMentorChatMessage] = useState('');
-  const [hackathon, setHackathon] = useState(null); // New state for hackathon details
-
-  const teamChatMessages = teamMessages[teamId] || [];
-  const firstMentorId = hackathon && hackathon.mentors.length > 0 ? hackathon.mentors[0]._id : null; // Dynamically get mentor ID
-  const mentorChatRoomId = firstMentorId ? `${hackathonId}_${firstMentorId}` : null;
-  const currentMentorMessages = mentorChatRoomId ? mentorMessages[mentorChatRoomId] || [] : [];
-
-  const teamChatRef = useRef(null);
-  const mentorChatRef = useRef(null);
-
-  // Derived state
-  const isSubmitted = submission && submission.status !== 'pending';
-
-  useEffect(() => {
-    const fetchSubmissionAndJoinChats = async () => {
-      if (!teamId || !hackathonId || !token || authLoading || !socket) {
-        setLoading(false);
-        return;
-      }
-      try {
-        const submissionData = await api.getSubmission(hackathonId, teamId, token);
-        if (submissionData && submissionData._id) {
-          setSubmission(submissionData);
-          setSubmissionLink(submissionData.codeLink || '');
-        }
-
-        const hackathonData = await api.getHackathonById(hackathonId, token); // Fetch hackathon details
-        setHackathon(hackathonData);
-
-        setLoading(false);
-
-        // Join team chat room and load historical messages
-        joinTeamChat(teamId, hackathonId);
-        loadHistoricalTeamMessages(hackathonId, teamId);
-
-        // Join mentor chat room and load historical messages if a mentor exists
-        if (firstMentorId) {
-          joinMentorChat(hackathonId, firstMentorId);
-          loadHistoricalMentorMessages(hackathonId, firstMentorId);
-        }
-
-      } catch (err) {
-        console.error("Error fetching submission details or joining chats:", err);
-        setError(err);
-        setLoading(false);
-      }
-    };
-    fetchSubmissionAndJoinChats();
-  }, [teamId, hackathonId, token, authLoading, socket, firstMentorId]); // Added socket and firstMentorId to dependencies
-
-  useEffect(() => {
-    if (teamChatRef.current) {
-      teamChatRef.current.scrollTop = teamChatRef.current.scrollHeight;
-    }
-  }, [teamMessages]);
-
-  useEffect(() => {
-    if (mentorChatRef.current) {
-      mentorChatRef.current.scrollTop = mentorChatRef.current.scrollHeight;
-    }
-  }, [mentorMessages]);
-
-  const handleOpenSubmissionModal = () => {
-    setShowSubmissionModal(true);
-    setSubmissionMessage(null);
-  };
-
-  const handleCloseSubmissionModal = () => {
-    setShowSubmissionModal(false);
-  };
-
-  const handleSubmitProject = async (e) => {
-    e.preventDefault();
-    setSubmissionMessage(null);
-
-    if (!submissionLink.trim()) {
-      setSubmissionMessage({ type: 'error', text: 'Submission link cannot be empty.' });
-      return;
-    }
-
-    try {
-      const submissionData = {
-        teamId,
-        hackathonId,
-        codeLink: submissionLink,
-      };
-      const res = await api.createOrUpdateSubmission(submissionData, token);
-      if (res.message) {
-        setSubmissionMessage({ type: 'error', text: res.message });
-      } else {
-        setSubmission(res);
-        setSubmissionMessage({ type: 'success', text: 'Project submitted successfully!' });
-        setShowSubmissionModal(false);
-      }
-    } catch (err) {
-      console.error("Error submitting project:", err);
-      setSubmissionMessage({ type: 'error', text: err.message || 'Failed to submit project.' });
-    }
-  };
-
-  const handleSendTeamMessage = (e) => {
-    e.preventDefault();
-    if (teamChatMessage.trim() && teamId && hackathonId) {
-      sendTeamMessage(teamId, hackathonId, teamChatMessage);
-      setTeamChatMessage('');
-    }
-  };
-
-  const handleSendMentorMessage = (e) => {
-    e.preventDefault();
-    if (mentorChatMessage.trim() && hackathonId && firstMentorId) {
-      sendMentorMessage(hackathonId, firstMentorId, mentorChatMessage);
-      setMentorChatMessage('');
-    }
-  };
-
-  if (authLoading || loading) {
-    return <main className="flex-grow container mx-auto p-4 pt-24 text-center text-text">Loading workspace...</main>;
-  }
-
-  if (error) {
-    return <main className="flex-grow container mx-auto p-4 pt-24 text-center text-red-500">Error: {error.message}</main>;
-  }
-
-  if (!teamId || !hackathonId) {
-    return <main className="flex-grow container mx-auto p-4 pt-24 text-center text-red-500">Team ID or Hackathon ID is missing from URL.</main>;
-  }
-
-  // Dummy data for project details - replace with real data from team/hackathon/submission as needed
-  const projectDetails = submission ? {
-    name: "Team Project",
-    status: submission.status,
-    deadline: "25th Dec, 2025",
-    repoLink: submission.codeLink,
-    description: "Your team's submission for the hackathon.",
-    resources: [],
-    recentActivity: [],
-    upcomingMilestones: [],
-    mentors: hackathon ? hackathon.mentors.map(mentor => ({ id: mentor._id, name: mentor.username, role: 'Mentor', availability: 'Online' })) : [], // Use dynamic mentor data
-  } : {
-    name: "No Project Yet",
-    status: "Not Submitted",
-    deadline: "N/A",
-    repoLink: "",
-    description: "No submission found for this team and hackathon. Submit your project!",
-    resources: [],
-    recentActivity: [],
-    upcomingMilestones: [],
-    mentors: hackathon ? hackathon.mentors.map(mentor => ({ id: mentor._id, name: mentor.username, role: 'Mentor', availability: 'Online' })) : [], // Use dynamic mentor data
-  };
-
+// ===================== Reusable Chat Modal Component =====================
+const ChatModal = ({
+  onClose,
+  title,
+  messages,
+  messageInput,
+  setMessageInput,
+  onSendMessage,
+  currentUser,
+}) => {
   return (
-    <main className="flex-grow container mx-auto p-4 pt-24">
-      <h1 className="text-5xl font-bold text-primary mb-8 text-center">Hackathon Workspace</h1>
-      <p className="text-xl text-muted mb-4 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">This is your dedicated workspace for the hackathon.</p>
-
-      {submissionMessage && (
-        <div className={`p-3 mb-4 rounded-lg text-white ${submissionMessage.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
-          {submissionMessage.text}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="bg-card border border-border rounded-xl w-full max-w-2xl h-[80vh] max-h-[700px] flex flex-col p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-4 pb-4 border-b border-border">
+          <h2 className="text-2xl font-bold text-text">{title}</h2>
+          <button
+            onClick={onClose}
+            className="text-muted hover:text-primary transition-colors p-1 rounded-full"
+          >
+            <X size={24} />
+          </button>
         </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Workspace Content */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          whileHover={{ scale: 1.01, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
-          className="lg:col-span-2 bg-gradient-to-br from-card-start to-card-end rounded-xl shadow-xl p-8 transform transition-all duration-300 ease-in-out border border-border"
-        >
-          <h2 className="text-3xl font-bold text-text mb-6">Your Project</h2>
-          <p className="text-muted text-lg mb-4 flex items-center gap-2"><span role="img" aria-label="description">📝</span> {projectDetails.description}</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-text mb-6">
-            <div>
-              <p className="font-semibold flex items-center gap-2"><span role="img" aria-label="status">✅</span> Status:</p>
-              <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${projectDetails.status === 'submitted' || projectDetails.status === 'resubmitted' ? 'bg-green-600 text-white' : 'bg-blue-600 text-white'}`}>{projectDetails.status}</span>
-            </div>
-            <div>
-              <p className="font-semibold flex items-center gap-2"><span role="img" aria-label="deadline">📅</span> Deadline:</p>
-              <span className="text-accent font-medium">{projectDetails.deadline}</span>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <p className="font-semibold text-text mb-2 flex items-center gap-2"><span role="img" aria-label="repository">🔗</span> Repository:</p>
-            {projectDetails.repoLink ? (
-              <a href={projectDetails.repoLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                {projectDetails.repoLink}
-              </a>
-            ) : (
-              <span className="text-muted">No repository link provided.</span>
-            )}
-          </div>
-
-          {/* Dummy data for resources, activity, milestones - replace with real data */}
-          <div className="mb-8">
-            <p className="font-semibold text-text mb-2 flex items-center gap-2"><span role="img" aria-label="resources">📚</span> Resources:</p>
-            <ul className="list-disc list-inside pl-6 text-muted space-y-1">
-              {projectDetails.resources.length > 0 ? (
-                projectDetails.resources.map((resource, index) => (
-                  <li key={index}><a href={resource.link} target="_blank" rel="noopener noreferrer" className="hover:underline text-primary-2">{resource.name}</a></li>
-                ))
-              ) : (
-                <li>No resources available.</li>
-              )}
-            </ul>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="mb-8">
-            <h3 className="text-2xl font-bold text-text mb-4">Recent Activity</h3>
-            <div className="bg-bg-elev rounded-lg p-4 border border-border h-48 overflow-y-auto">
-              <ul className="space-y-3">
-                {projectDetails.recentActivity.length > 0 ? (
-                  projectDetails.recentActivity.map(activity => (
-                    <li key={activity.id} className="flex items-start gap-3">
-                      <span className="text-primary-2 text-xl">
-                        {activity.type === "commit" && "⚙️"}
-                        {activity.type === "design" && "🎨"}
-                        {activity.type === "backend" && "🖥️"}
-                      </span>
-                      <div>
-                        <p className="text-text text-sm font-medium">{activity.message}</p>
-                        <p className="text-muted text-xs">{activity.date}</p>
-                      </div>
-                    </li>
-                  ))
-                ) : (
-                  <li>No recent activity.</li>
-                )}
-              </ul>
-            </div>
-          </div>
-
-          {/* Upcoming Milestones */}
-          <div className="mb-8">
-            <h3 className="text-2xl font-bold text-text mb-4">Upcoming Milestones</h3>
-            <div className="bg-bg-elev rounded-lg p-4 border border-border">
-              <ul className="space-y-3">
-                {projectDetails.upcomingMilestones.length > 0 ? (
-                  projectDetails.upcomingMilestones.map(milestone => (
-                    <li key={milestone.id} className="flex justify-between items-center">
-                      <p className="text-text text-base font-medium flex items-center gap-2"><span role="img" aria-label="milestone">🎯</span> {milestone.name}</p>
-                      <span className="text-accent text-sm">{milestone.date}</span>
-                    </li>
-                  ))
-                ) : (
-                  <li>No upcoming milestones.</li>
-                )}
-              </ul>
-            </div>
-          </div>
-
-          {isSubmitted ? (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="p-4 bg-primary/20 text-primary rounded-xl flex items-center justify-center gap-3 border border-primary/50"
+        <div className="flex-1 overflow-y-auto space-y-4 p-4 bg-bg-elev rounded-lg mb-4">
+          {messages.map((msg, i) => (
+            <div
+              key={i}
+              className={`flex ${
+                msg.sender === currentUser?._id ? "justify-end" : "justify-start"
+              }`}
             >
-              <span role="img" aria-label="submitted" className="text-3xl">🎉</span> <span className="font-semibold text-lg">{submissionMessage ? submissionMessage.text : 'Project submitted successfully!'}</span>
-            </motion.div>
-          ) : (
-            <motion.button
-              onClick={handleOpenSubmissionModal}
-              className="px-8 py-4 bg-primary text-white rounded-full font-bold text-lg hover:bg-primary-2 transition-colors duration-200"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Submit Project
-            </motion.button>
-          )}
-        </motion.div>
-
-        {/* Submission Modal */}
-        {showSubmissionModal && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
-          >
-            <motion.div
-              initial={{ y: -50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 50, opacity: 0 }}
-              className="bg-card p-8 rounded-xl shadow-xl w-full max-w-md border border-border"
-            >
-              <h2 className="text-2xl font-bold text-text mb-4">Submit Your Project</h2>
-              <form onSubmit={handleSubmitProject}>
-                <label htmlFor="submissionLink" className="block text-text text-lg font-medium mb-2">Project Link:</label>
-                <input
-                  type="url"
-                  id="submissionLink"
-                  value={submissionLink}
-                  onChange={(e) => setSubmissionLink(e.target.value)}
-                  placeholder="https://github.com/your-project-link"
-                  className="w-full p-3 bg-bg-elev border border-border rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent mb-4"
-                  required
-                />
-                {submissionMessage && submissionMessage.type === 'error' && (
-                  <p className="text-red-400 text-sm mb-4">{submissionMessage.text}</p>
-                )}
-                <div className="flex justify-end gap-4">
-                  <motion.button
-                    type="button"
-                    onClick={handleCloseSubmissionModal}
-                    className="px-6 py-3 bg-muted/20 text-muted rounded-full font-semibold hover:bg-muted/30 transition-colors duration-200"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Cancel
-                  </motion.button>
-                  <motion.button
-                    type="submit"
-                    className="px-6 py-3 bg-primary text-white rounded-full font-semibold hover:bg-primary-2 transition-colors duration-200"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {submission && submission._id ? 'Update Submission' : 'Submit'}
-                  </motion.button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* Team Information & Chat Sidebar */}
-        <div className="lg:col-span-1 space-y-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            whileHover={{ scale: 1.01, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
-            className="bg-gradient-to-br from-card-start to-card-end rounded-xl shadow-xl p-8 transform transition-all duration-300 ease-in-out border border-border"
-          >
-            <h2 className="text-3xl font-bold text-text mb-6">Team Details</h2>
-            <p className="text-text text-lg mb-4"><strong>Team ID:</strong> <span className="font-mono text-accent select-all">{teamId || 'N/A'}</span></p>
-            {/* <p className="text-text text-lg mb-4"><strong>Team Code:</strong> <span className="font-mono text-accent select-all">FINTECH-XYZ</span></p> */} {/* Team code might not be relevant if we fetch team data via ID */}
-            <h3 className="text-xl font-semibold text-text mt-6 mb-3">Members:</h3>
-            <ul className="space-y-2 text-muted">
-              {/* This should come from actual team data fetched, but for now, use dummy or placeholder */}
-              {/* {teamMembers.map((member) => (
-                <li key={member.id} className="flex items-center gap-2"><span role="img" aria-label="member">👨‍💻</span> {member.name} - <span className="text-primary-2">({member.role})</span></li>
-              ))} */}
-              <li>No team members data yet.</li>
-            </ul>
-          </motion.div>
-
-          {/* Mentors Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            whileHover={{ scale: 1.01, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
-            className="bg-gradient-to-br from-card-start to-card-end rounded-xl shadow-xl p-8 flex flex-col transform transition-all duration-300 ease-in-out border border-border"
-          >
-            <h2 className="text-3xl font-bold text-text mb-6">Assigned Mentors</h2>
-            <div className="space-y-3 mb-4">
-              {projectDetails.mentors.length > 0 ? (
-                projectDetails.mentors.map(mentor => (
-                  <div key={mentor.id} className="flex items-center gap-2">
-                    <span role="img" aria-label="mentor" className="text-xl">🧑‍🏫</span>
-                    <div>
-                      <p className="text-text text-base font-semibold">{mentor.name}</p>
-                      <p className="text-muted text-xs">{mentor.role} ({mentor.availability})</p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-muted">No mentors assigned yet.</p>
-              )}
+              <div
+                className={`px-4 py-2 rounded-lg max-w-[70%] ${
+                  msg.sender === currentUser?._id
+                    ? "bg-primary text-white"
+                    : "bg-blue-700 text-white"
+                }`}
+              >
+                <p className="font-semibold text-sm">
+                  {msg.sender === currentUser?._id
+                    ? "You"
+                    : msg.senderName || "Unknown"}
+                </p>
+                <p>{msg.message}</p>
+                <span className="text-xs text-right block mt-1 opacity-70">
+                  {new Date(msg.timestamp).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </div>
             </div>
-            <motion.button
-              onClick={() => setShowMentorChatModal(true)}
-              className="mt-4 px-6 py-2 bg-primary text-white rounded-full font-bold text-base hover:bg-primary-2 transition-colors duration-200 w-full"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Chat with Mentor
-            </motion.button>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            whileHover={{ scale: 1.01, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
-            className="bg-gradient-to-br from-card-start to-card-end rounded-xl shadow-xl p-8 flex flex-col transform transition-all duration-300 ease-in-out border border-border"
-          >
-            <h2 className="text-3xl font-bold text-text mb-6">Team Chat</h2>
-            <motion.button
-              onClick={() => setShowTeamChatModal(true)}
-              className="mt-4 px-6 py-2 bg-primary text-white rounded-full font-bold text-base hover:bg-primary-2 transition-colors duration-200 w-full"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Chat with Team
-            </motion.button>
-          </motion.div>
+          ))}
         </div>
-      </div>
-
-      {/* Mentor Chat Modal */}
-      {showMentorChatModal && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
-        >
-          <motion.div
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 50, opacity: 0 }}
-            className="bg-card p-8 rounded-xl shadow-xl w-full max-w-md border border-border relative"
+        <form onSubmit={onSendMessage} className="flex gap-2">
+          <input
+            type="text"
+            value={messageInput}
+            onChange={(e) => setMessageInput(e.target.value)}
+            placeholder="Type your message..."
+            className="flex-1 px-4 py-2 rounded-lg bg-bg-elev border border-border text-text focus:outline-none focus:ring-2 focus:ring-primary"
+            required
+            autoFocus
+          />
+          <button
+            type="submit"
+            className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-2 transition-colors"
           >
-            <button
-              onClick={() => setShowMentorChatModal(false)}
-              className="absolute top-4 right-4 text-muted hover:text-text"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <h2 className="text-2xl font-bold text-text mb-4">Chat with Mentor</h2>
-            <div ref={mentorChatRef} className="h-64 bg-bg-elev rounded-lg p-4 flex flex-col justify-end text-muted space-y-2 overflow-y-auto mb-4 border border-border">
-              {currentMentorMessages.length > 0 ? (
-                currentMentorMessages.map((message, index) => (
-                  <div key={index} className={`flex ${message.sender._id === user.id ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`p-2 rounded-lg ${message.sender._id === user.id ? 'bg-primary text-white' : 'bg-gray-700 text-text'} max-w-[70%]`}>
-                      <p className="font-semibold text-sm mb-1">{message.sender.username}</p>
-                      <p className="text-sm">{message.content}</p>
-                      <p className="text-xs text-right opacity-70 mt-1">{new Date(message.timestamp).toLocaleTimeString()}</p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-center text-muted">No messages yet. Start a conversation!</p>
-              )}
-            </div>
-            <form onSubmit={handleSendMentorMessage}>
-              <textarea
-                className="w-full p-3 bg-bg-elev border border-border rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                rows="3"
-                placeholder="Type your message to mentor..."
-                value={mentorChatMessage}
-                onChange={(e) => setMentorChatMessage(e.target.value)}
-              ></textarea>
-              <motion.button
-                type="submit"
-                className="mt-4 px-8 py-4 bg-primary text-white rounded-full font-bold text-lg hover:bg-primary-2 transition-colors duration-200 w-full"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Send Message to Mentor
-              </motion.button>
-            </form>
-          </motion.div>
-        </motion.div>
-      )}
-
-      {/* Team Chat Modal */}
-      {showTeamChatModal && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
-        >
-          <motion.div
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 50, opacity: 0 }}
-            className="bg-card p-8 rounded-xl shadow-xl w-full max-w-md border border-border relative"
-          >
-            <button
-              onClick={() => setShowTeamChatModal(false)}
-              className="absolute top-4 right-4 text-muted hover:text-text"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <h2 className="text-2xl font-bold text-text mb-4">Team Chat</h2>
-            <div ref={teamChatRef} className="h-64 bg-bg-elev rounded-lg p-4 flex flex-col justify-end text-muted space-y-2 overflow-y-auto mb-4 border border-border">
-              {teamChatMessages.length > 0 ? (
-                teamChatMessages.map((message, index) => (
-                  <div key={index} className={`flex ${message.sender._id === user.id ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`p-2 rounded-lg ${message.sender._id === user.id ? 'bg-primary text-white' : 'bg-gray-700 text-text'} max-w-[70%]`}>
-                      <p className="font-semibold text-sm mb-1">{message.sender.username}</p>
-                      <p className="text-sm">{message.content}</p>
-                      <p className="text-xs text-right opacity-70 mt-1">{new Date(message.timestamp).toLocaleTimeString()}</p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-center text-muted">No messages yet. Start a conversation!</p>
-              )}
-            </div>
-            <form onSubmit={handleSendTeamMessage}>
-              <textarea
-                className="w-full p-3 bg-bg-elev border border-border rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                rows="3"
-                placeholder="Type your message here..."
-                value={teamChatMessage}
-                onChange={(e) => setTeamChatMessage(e.target.value)}
-              ></textarea>
-              <motion.button
-                type="submit"
-                className="mt-4 px-8 py-4 bg-primary text-white rounded-full font-bold text-lg hover:bg-primary-2 transition-colors duration-200 w-full"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Send Message
-              </motion.button>
-            </form>
-          </motion.div>
-        </motion.div>
-      )}
-    </main>
+            Send
+          </button>
+        </form>
+      </motion.div>
+    </motion.div>
   );
 };
 
-export default WorkspacePage;
+// ===================== Main Component =====================
+export default function WorkspacePage() {
+  const { user, token } = useContext(AuthContext);
+  const { socket } = useContext(SocketContext);
+  const {
+    teamMessages,
+    mentorMessages,
+    sendTeamMessage,
+    sendMentorMessage,
+    joinTeamChat,
+    joinMentorChat,
+    loadHistoricalTeamMessages,
+    loadHistoricalMentorMessages,
+  } = useContext(ChatContext);
+
+  const [searchParams] = useSearchParams();
+  const hackathonId = searchParams.get("hackathonId");
+  const teamId = searchParams.get("teamId");
+
+  const [hackathon, setHackathon] = useState(null);
+  const [team, setTeam] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [teamMessageInput, setTeamMessageInput] = useState("");
+  const [mentorMessageInput, setMentorMessageInput] = useState("");
+  const [activeChat, setActiveChat] = useState(""); // 'team', 'mentor', or ''
+  const [projectUrl, setProjectUrl] = useState("");
+  const [repoLink, setRepoLink] = useState("");
+
+  // ===================== Data Fetch =====================
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!hackathonId || !teamId || !token) {
+        setError({
+          message: "Missing hackathon ID, team ID, or authentication token.",
+        });
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const fetchedHackathon = await api.getHackathonById(hackathonId);
+        setHackathon(fetchedHackathon);
+
+        const fetchedTeam = await api.getTeamById(teamId, token);
+        setTeam(fetchedTeam);
+        setProjectUrl(fetchedTeam.submission?.projectUrl || "");
+        setRepoLink(fetchedTeam.submission?.repoLink || "");
+
+        if (socket && fetchedTeam) {
+          joinTeamChat(teamId, hackathonId);
+          loadHistoricalTeamMessages(hackathonId, teamId);
+
+          if (fetchedTeam.mentor) {
+            joinMentorChat(hackathonId, fetchedTeam.mentor._id);
+            loadHistoricalMentorMessages(hackathonId, fetchedTeam.mentor._id);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching workspace data:", err);
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [hackathonId, teamId, token, socket]);
+
+  // ===================== Submit Project =====================
+  const handleSubmitSubmission = async (e) => {
+    e.preventDefault();
+    try {
+      const submissionData = {
+        hackathon: hackathonId,
+        team: teamId,
+        projectUrl,
+        repoLink,
+      };
+      const response = await api.createOrUpdateSubmission(submissionData, token);
+      setTeam((prevTeam) => ({
+        ...prevTeam,
+        submission: response,
+      }));
+      alert("Submission updated successfully!");
+    } catch (err) {
+      console.error("Error submitting project:", err);
+      alert("Failed to submit project.");
+    }
+  };
+
+  // ===================== Send Chat Message =====================
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (activeChat === "team") {
+      sendTeamMessage(teamId, hackathonId, teamMessageInput);
+      setTeamMessageInput("");
+    } else if (activeChat === "mentor" && team?.mentor) {
+      sendMentorMessage(hackathonId, team.mentor._id, mentorMessageInput);
+      setMentorMessageInput("");
+    }
+  };
+
+  // ===================== Loading & Error UI =====================
+  if (loading)
+    return (
+      <div className="flex-grow flex items-center justify-center text-text">
+        Loading workspace...
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex-grow flex items-center justify-center text-red-500">
+        Error: {error.message}
+      </div>
+    );
+
+  if (!hackathon || !team)
+    return (
+      <div className="flex-grow flex items-center justify-center text-text">
+        No Hackathon or Team data available. Check console for details.
+      </div>
+    );
+
+  // ===================== Main UI =====================
+  return (
+    <>
+      <div className="flex-grow container mx-auto p-4 pt-20 max-w-7xl">
+        {/* Title */}
+        <h1 className="text-4xl font-bold text-text mb-6 mt-6">
+          {hackathon.name} -{" "}
+          <span className="text-primary">Team: {team.name}</span> Workspace
+        </h1>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* ================= Hackathon Card ================= */}
+          <div className="lg:col-span-1 bg-card border border-border rounded-xl p-6 shadow-md transition hover:shadow-lg">
+            <h2 className="text-2xl font-bold text-text mb-4">
+              Hackathon Details
+            </h2>
+            <p className="text-muted mb-2">
+              <strong>Status:</strong> {hackathon.status}
+            </p>
+            <p className="text-muted mb-2">
+              <strong>Dates:</strong>{" "}
+              {new Date(hackathon.startDate).toLocaleDateString()} -{" "}
+              {new Date(hackathon.endDate).toLocaleDateString()}
+            </p>
+            <p className="text-muted mb-2">
+              <strong>Prize Pool:</strong> $
+              {hackathon.prizePool
+                ? hackathon.prizePool.toLocaleString()
+                : "N/A"}
+            </p>
+            <p className="text-muted mb-2">
+              <strong>Registration Deadline:</strong>{" "}
+              {hackathon.registrationDeadline
+                ? new Date(hackathon.registrationDeadline).toLocaleDateString()
+                : "N/A"}
+            </p>
+            <p className="text-muted mb-2">
+              <strong>Description:</strong> {hackathon.description}
+            </p>
+            {hackathon.imageUrl && (
+              <img
+                src={hackathon.imageUrl}
+                alt={hackathon.name}
+                className="w-full h-48 object-cover rounded-md mt-4"
+              />
+            )}
+
+            {/* ================= CHAT BUTTONS ================= */}
+            <div className="flex flex-col gap-4 mt-6">
+              {/* --- TEAM CHAT BUTTON --- */}
+              <button
+                onClick={() => setActiveChat("team")}
+                className="w-full px-6 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 bg-primary text-white hover:bg-primary-2"
+              >
+                Open Team Chat
+              </button>
+
+              {/* --- ALWAYS SHOW MENTOR CHAT BUTTON --- */}
+              <button
+                onClick={() => setActiveChat("mentor")}
+                className="w-full px-6 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 bg-purple-600 text-white hover:bg-purple-700"
+              >
+                Open Mentor Chat
+              </button>
+            </div>
+          </div>
+
+          {/* ================= Team Overview Card ================= */}
+          <div className="lg:col-span-2 bg-card border border-border rounded-xl p-6 shadow-md transition hover:shadow-lg">
+            <h2 className="text-2xl font-bold text-text mb-4">Team Overview</h2>
+            <p className="text-muted mb-2">
+              <strong>Team Leader:</strong> {team.leader?.username || "N/A"}
+            </p>
+            <h3 className="text-xl font-bold text-text mt-4 mb-3">Members:</h3>
+            <div className="flex flex-wrap gap-4">
+              {team.members?.length ? (
+                team.members.map((member) => (
+                  <div
+                    key={member.user._id}
+                    className="flex items-center gap-2 bg-bg-elev p-2 rounded-lg"
+                  >
+                    <img
+                      src={
+                        member.user.avatar ||
+                        `https://api.dicebear.com/7.x/initials/svg?seed=${member.user.username}`
+                      }
+                      alt={member.user.username}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <span className="text-text">
+                      {member.user.username}{" "}
+                      {team.leader?._id === member.user._id && "(Leader)"}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted">No team members found.</p>
+              )}
+            </div>
+
+            {/* ================= Team Code ================= */}
+            <h3 className="text-xl font-bold text-text mt-6 mb-3">Team Code</h3>
+            <div className="bg-bg-elev border border-border rounded-lg p-3 flex items-center justify-between">
+              <p className="font-mono text-primary-2 text-lg break-all">
+                {team._id}
+              </p>
+              <button
+                onClick={() => navigator.clipboard.writeText(team._id)}
+                className="bg-primary text-white px-3 py-1 rounded-md text-sm hover:bg-primary-2 transition-colors"
+              >
+                Copy
+              </button>
+            </div>
+            <p className="text-muted text-sm mt-2">
+              Share this code with others to invite them to your team.
+            </p>
+
+            {/* ================= Project Submission ================= */}
+            <h2 className="text-2xl font-bold text-text mt-8 mb-4">
+              Project Submission
+            </h2>
+            <form onSubmit={handleSubmitSubmission} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-text mb-2">
+                  Project URL
+                </label>
+                <input
+                  type="url"
+                  value={projectUrl}
+                  onChange={(e) => setProjectUrl(e.target.value)}
+                  placeholder="https://your-project-demo.com"
+                  className="w-full px-4 py-3 bg-bg-elev border border-border rounded-lg text-text placeholder-muted focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-text mb-2">
+                  Repository Link
+                </label>
+                <input
+                  type="url"
+                  value={repoLink}
+                  onChange={(e) => setRepoLink(e.target.value)}
+                  placeholder="https://github.com/your-team/your-project"
+                  className="w-full px-4 py-3 bg-bg-elev border border-border rounded-lg text-text placeholder-muted focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full px-4 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-2 transition-colors"
+              >
+                {team.submission ? "Update Submission" : "Submit Project"}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {/* ================= Chat Modal Render ================= */}
+      <AnimatePresence>
+        {activeChat && (
+          <ChatModal
+            onClose={() => setActiveChat("")}
+            title={
+              activeChat === "team"
+                ? `Team Chat`
+                : `Chat with Mentor`
+            }
+            messages={
+              activeChat === "team"
+                ? teamMessages[teamId] || []
+                : mentorMessages[`${hackathonId}_${team.mentor?._id}`] || []
+            }
+            messageInput={
+              activeChat === "team" ? teamMessageInput : mentorMessageInput
+            }
+            setMessageInput={
+              activeChat === "team" ? setTeamMessageInput : setMentorMessageInput
+            }
+            onSendMessage={handleSendMessage}
+            currentUser={user}
+          />
+        )}
+      </AnimatePresence>
+    </>
+  );
+}

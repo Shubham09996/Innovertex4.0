@@ -1,64 +1,88 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { useState, useEffect, useContext } from 'react'; // Import useState, useEffect, useContext
+import api from '../../utils/api'; // Import api
+import { AuthContext } from '../../context/AuthContext'; // Import AuthContext
 
 export default function RecentActivity() {
-  const activities = [
-    {
-      id: 1,
-      type: 'submission',
-      message: 'New submission received for AI Innovation Challenge',
-      time: '2 minutes ago',
-      icon: '📝',
-      color: 'text-blue-500'
-    },
-    {
-      id: 2,
-      type: 'registration',
-      message: '28 new participants joined Web3 Hackathon',
-      time: '15 minutes ago',
-      icon: '👥',
-      color: 'text-green-500'
-    },
-    {
-      id: 3,
-      type: 'team',
-      message: 'Team "TechTitans" formed in HealthTech Innovation',
-      time: '1 hour ago',
-      icon: '🤝',
-      color: 'text-purple-500'
-    },
-    {
-      id: 4,
-      type: 'judge',
-      message: 'Judge feedback submitted for 5 projects',
-      time: '2 hours ago',
-      icon: '⚖️',
-      color: 'text-orange-500'
-    },
-    {
-      id: 5,
-      type: 'hackathon',
-      message: 'HealthTech Innovation hackathon started',
-      time: '3 hours ago',
-      icon: '🏆',
-      color: 'text-red-500'
-    },
-    {
-      id: 6,
-      type: 'submission',
-      message: '3 new submissions for Fintech Revolution',
-      time: '4 hours ago',
-      icon: '📝',
-      color: 'text-blue-500'
-    },
-    {
-      id: 7,
-      type: 'registration',
-      message: '12 new participants joined AI Innovation Challenge',
-      time: '6 hours ago',
-      icon: '👥',
-      color: 'text-green-500'
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { token } = useContext(AuthContext);
+
+  useEffect(() => {
+    const fetchRecentActivities = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const data = await api.getRecentActivities(token);
+        setActivities(data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching recent activities:", err);
+        setError(err.message || 'Failed to fetch recent activities');
+        setLoading(false);
+      }
+    };
+    fetchRecentActivities();
+  }, [token]);
+
+  const getTimeAgo = (timestamp) => {
+    const now = new Date();
+    const activityTime = new Date(timestamp);
+    const seconds = Math.floor((now - activityTime) / 1000);
+
+    let interval = seconds / 31536000;
+    if (interval > 1) return Math.floor(interval) + " years ago";
+    interval = seconds / 2592000;
+    if (interval > 1) return Math.floor(interval) + " months ago";
+    interval = seconds / 86400;
+    if (interval > 1) return Math.floor(interval) + " days ago";
+    interval = seconds / 3600;
+    if (interval > 1) return Math.floor(interval) + " hours ago";
+    interval = seconds / 60;
+    if (interval > 1) return Math.floor(interval) + " minutes ago";
+    return Math.floor(seconds) + " seconds ago";
+  };
+
+  const getActivityDisplay = (activity) => {
+    let icon = '⚫'; // Default icon
+    let color = 'text-gray-500';
+    let message = activity.message;
+
+    switch (activity.type) {
+      case 'hackathonCreated':
+        icon = '🏆';
+        color = 'text-red-500';
+        message = `New hackathon \"${activity.hackathonName}\" created.`;
+        break;
+      case 'teamFormed':
+        icon = '🤝';
+        color = 'text-purple-500';
+        message = `Team \"${activity.teamName}\" formed in ${activity.hackathonName}.`;
+        break;
+      case 'submissionReceived':
+        icon = '📝';
+        color = 'text-blue-500';
+        message = `New submission received for \"${activity.hackathonName}\" by team \"${activity.teamName}\".`;
+        break;
+      case 'participantRegistered':
+        icon = '👥';
+        color = 'text-green-500';
+        message = `${activity.count} new participants joined ${activity.hackathonName}.`; // Assuming count is passed
+        break;
+      case 'announcementCreated':
+        icon = '📢';
+        color = 'text-orange-500';
+        message = `New announcement for \"${activity.hackathonName}\": ${activity.announcementTitle}.`;
+        break;
+      default:
+        break;
     }
-  ];
+    return { icon, color, message };
+  };
 
   return (
     <div className="bg-card border border-border rounded-xl p-6">
@@ -68,21 +92,38 @@ export default function RecentActivity() {
       </h2>
 
       <div className="space-y-4">
-        {activities.map((activity) => (
-          <div key={activity.id} className="flex items-start gap-3 p-3 bg-bg-elev rounded-lg hover:bg-bg-elev/80 transition-colors">
-            <div className={`w-8 h-8 rounded-full bg-bg flex items-center justify-center text-lg ${activity.color}`}>
-              {activity.icon}
+        {loading ? (
+          <div className="text-center py-8 text-text">Loading activities...</div>
+        ) : error ? (
+          <div className="text-center py-8 text-red-500">Error: {error}</div>
+        ) : activities.length > 0 ? (
+          activities.map((activity) => {
+            const { icon, color, message } = getActivityDisplay(activity);
+            return (
+              <div key={activity._id} className="flex items-start gap-3 p-3 bg-bg-elev rounded-lg hover:bg-bg-elev/80 transition-colors">
+                <div className={`w-8 h-8 rounded-full bg-bg flex items-center justify-center text-lg ${color}`}>
+                  {icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-text font-medium leading-tight">
+                    {message}
+                  </p>
+                  <p className="text-xs text-muted mt-1">
+                    {getTimeAgo(activity.createdAt)}
+                  </p>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-gray-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">🤷‍♀️</span>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm text-text font-medium leading-tight">
-                {activity.message}
-              </p>
-              <p className="text-xs text-muted mt-1">
-                {activity.time}
-              </p>
-            </div>
+            <h3 className="text-lg font-semibold text-text mb-2">No Recent Activity</h3>
+            <p className="text-muted mb-4">Check back later for updates or start a new hackathon!</p>
           </div>
-        ))}
+        )}
       </div>
 
       <div className="mt-6 pt-4 border-t border-border">

@@ -33,11 +33,11 @@ export const createOrUpdateSubmission = async (req, res) => {
 
     if (submission) {
       // Update existing submission
-      submission.codeLink = codeLink || submission.codeLink;
+      submission.repoUrl = codeLink || submission.repoUrl; // Use repoUrl
       submission.presentationLink = presentationLink || submission.presentationLink;
       submission.videoLink = videoLink || submission.videoLink;
       submission.otherLinks = otherLinks || submission.otherLinks;
-      submission.submissionDate = Date.now();
+      submission.submittedAt = Date.now();
       submission.status = 'resubmitted';
 
       const updatedSubmission = await submission.save();
@@ -47,10 +47,11 @@ export const createOrUpdateSubmission = async (req, res) => {
       submission = new Submission({
         team: teamId,
         hackathon: hackathonId,
-        codeLink,
+        repoUrl: codeLink, // Use repoUrl
         presentationLink,
         videoLink,
         otherLinks,
+        status: 'submitted', // Set status to submitted for new submission
       });
 
       const createdSubmission = await submission.save();
@@ -67,6 +68,83 @@ export const createOrUpdateSubmission = async (req, res) => {
   }
 };
 
+// @desc    Get submission by ID
+// @route   GET /api/submissions/:id
+// @access  Private/Organizer/Judge
+export const getSubmissionById = async (req, res) => {
+  try {
+    const submission = await Submission.findById(req.params.id)
+      .populate('team', 'name leader members')
+      .populate('hackathon', 'name');
+
+    if (!submission) {
+      return res.status(404).json({ message: 'Submission not found' });
+    }
+
+    // Authorization check (similar to existing getSubmission)
+    const hackathon = await Hackathon.findById(submission.hackathon);
+    const team = await Team.findById(submission.team);
+
+    const isTeamMember = team && team.members.some(member => member.user.toString() === req.user.id);
+    const isLeader = team && team.leader.toString() === req.user.id;
+    const isOrganizer = hackathon && hackathon.organizer.toString() === req.user.id;
+    const isAssignedJudge = hackathon && hackathon.judges.some(judgeId => judgeId.toString() === req.user.id);
+
+    if (!(isTeamMember || isLeader || isOrganizer || isAssignedJudge)) {
+      return res.status(403).json({ message: 'Not authorized to view this submission' });
+    }
+
+    res.json(submission);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+// @desc    Update submission review (grade and feedback)
+// @route   PUT /api/submissions/:id/review
+// @access  Private/Organizer/Judge
+export const updateSubmissionReview = async (req, res) => {
+  const { grade, feedback, status } = req.body;
+
+  // Check if user is an Organizer or Judge
+  if (req.user.role !== 'Organizer' && req.user.role !== 'Judge') {
+    return res.status(403).json({ message: 'Not authorized to review submissions' });
+  }
+
+  try {
+    let submission = await Submission.findById(req.params.id);
+
+    if (!submission) {
+      return res.status(404).json({ message: 'Submission not found' });
+    }
+
+    // Further authorization: ensure judge is assigned to this hackathon, or user is the organizer
+    const hackathon = await Hackathon.findById(submission.hackathon);
+    if (!hackathon) {
+      return res.status(404).json({ message: 'Associated hackathon not found' });
+    }
+
+    const isOrganizer = hackathon.organizer.toString() === req.user.id;
+    const isAssignedJudge = hackathon.judges.some(judgeId => judgeId.toString() === req.user.id);
+
+    if (!isOrganizer && !isAssignedJudge) {
+      return res.status(403).json({ message: 'Not authorized to review this submission' });
+    }
+
+    if (status) submission.status = status;
+    if (grade !== undefined) submission.grade = grade;
+    if (feedback) submission.feedback = feedback;
+
+    const updatedSubmission = await submission.save();
+    res.status(200).json(updatedSubmission);
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
 // @desc    Get submission by team and hackathon
 // @route   GET /api/submissions/:hackathonId/:teamId
 // @access  Private/Participant/Organizer/Judge
@@ -76,7 +154,7 @@ export const getSubmission = async (req, res) => {
 
     const submission = await Submission.findOne({ team: teamId, hackathon: hackathonId })
       .populate('team', 'name leader members')
-      .populate('hackathon', 'title');
+      .populate('hackathon', 'name'); // Populate hackathon name
 
     if (!submission) {
       return res.status(404).json({ message: 'Submission not found' });

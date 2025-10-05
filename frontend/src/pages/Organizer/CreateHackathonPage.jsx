@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../../utils/api'; // Import api
+import { AuthContext } from '../../context/AuthContext'; // Import AuthContext
 
 export default function CreateHackathonPage() {
   const navigate = useNavigate();
+  const { token } = useContext(AuthContext); // Get token from AuthContext
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -18,6 +21,8 @@ export default function CreateHackathonPage() {
     judgingCriteria: '',
     faq: []
   });
+  const [hackathonImageFile, setHackathonImageFile] = useState(null);
+  const [hackathonImagePreview, setHackathonImagePreview] = useState(null);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,22 +48,63 @@ export default function CreateHackathonPage() {
     }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setHackathonImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setHackathonImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setHackathonImageFile(null);
+      setHackathonImagePreview(null);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    const dataToSend = new FormData();
+    for (const key in formData) {
+        if (key === 'technology') {
+            formData[key].forEach(tech => dataToSend.append('technologyStack', tech));
+        } else if (key === 'teamSize') {
+            dataToSend.append('maxTeamSize', formData[key].max);
+        } else if (key === 'prize') {
+            // Assuming prize is a string, backend expects a number, so parse it
+            dataToSend.append('prizePool', parseFloat(formData[key].replace(/[^\d.]/g, '')) || 0);
+        } else if (key === 'startDate' || key === 'endDate' || key === 'registrationDeadline') {
+            // Convert datetime-local to ISO string if needed by backend, or send as is
+            dataToSend.append(key, new Date(formData[key]).toISOString());
+        } else if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
+            dataToSend.append(key, formData[key]);
+        }
+    }
+    if (hackathonImageFile) {
+        dataToSend.append('image', hackathonImageFile);
+    }
+
+    try {
+      const response = await api.createHackathon(dataToSend, token);
+      console.log('Hackathon created:', response);
+      navigate('/organizer/hackathons'); // Navigate to hackathon list or detail page
+    } catch (error) {
+      console.error("Error creating hackathon:", error);
+      alert("Failed to create hackathon.");
+    } finally {
       setIsSubmitting(false);
-      navigate('/organizer/hackathons');
-    }, 2000);
+    }
   };
 
   const steps = [
     { number: 1, title: 'Basic Info', description: 'Hackathon details and description' },
-    { number: 2, title: 'Schedule', description: 'Dates and timing' },
-    { number: 3, title: 'Rules', description: 'Eligibility and guidelines' },
-    { number: 4, title: 'Review', description: 'Final review and publish' }
+    { number: 2, title: 'Image', description: 'Upload hackathon banner image' }, // New Step
+    { number: 3, title: 'Schedule', description: 'Dates and timing' },
+    { number: 4, title: 'Rules', description: 'Eligibility and guidelines' },
+    { number: 5, title: 'Review', description: 'Review and Publish' }
   ];
 
   return (
@@ -81,16 +127,16 @@ export default function CreateHackathonPage() {
               }`}>
                 {step.number}
               </div>
-              <div className="ml-3 hidden sm:block">
+              <div className="ml-2">
                 <div className={`font-semibold ${
                   currentStep >= step.number ? 'text-text' : 'text-muted'
                 }`}>
                   {step.title}
                 </div>
-                <div className="text-sm text-muted">{step.description}</div>
+                <div className="text-sm text-muted line-clamp-2">{step.description}</div>
               </div>
               {index < steps.length - 1 && (
-                <div className={`w-16 h-0.5 mx-4 ${
+                <div className={`flex-1 h-0.5 mx-2 ${
                   currentStep > step.number ? 'bg-primary' : 'bg-border'
                 }`} />
               )}
@@ -182,8 +228,34 @@ export default function CreateHackathonPage() {
           </div>
         )}
 
-        {/* Step 2: Schedule */}
+        {/* Step 2: Image Upload */}
         {currentStep === 2 && (
+          <div className="bg-card border border-border rounded-xl p-6">
+            <h2 className="text-2xl font-bold text-text mb-6">Upload Hackathon Image</h2>
+            <div className="flex flex-col items-center mb-4 relative">
+              <label htmlFor="hackathonImage" className="block mb-2 font-medium">Select Hackathon Banner Image</label>
+              <div className="w-full max-w-lg h-48 border-2 border-primary rounded-lg overflow-hidden flex items-center justify-center bg-gray-200 relative cursor-pointer">
+                {hackathonImagePreview ? (
+                  <img src={hackathonImagePreview} alt="Hackathon Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-gray-500 text-3xl">🖼️</span>
+                )}
+                <input
+                  type="file"
+                  id="hackathonImage"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  required // Make image upload mandatory
+                />
+              </div>
+              <p className="text-sm text-muted mt-2">Click the box above to upload an image. (Recommended aspect ratio: 16:9)</p>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Schedule */}
+        {currentStep === 3 && (
           <div className="bg-card border border-border rounded-xl p-6">
             <h2 className="text-2xl font-bold text-text mb-6">Schedule & Timing</h2>
             
@@ -242,8 +314,8 @@ export default function CreateHackathonPage() {
           </div>
         )}
 
-        {/* Step 3: Rules */}
-        {currentStep === 3 && (
+        {/* Step 4: Rules */}
+        {currentStep === 4 && (
           <div className="bg-card border border-border rounded-xl p-6">
             <h2 className="text-2xl font-bold text-text mb-6">Rules & Guidelines</h2>
             
@@ -320,8 +392,8 @@ export default function CreateHackathonPage() {
           </div>
         )}
 
-        {/* Step 4: Review */}
-        {currentStep === 4 && (
+        {/* Step 5: Review */}
+        {currentStep === 5 && (
           <div className="bg-card border border-border rounded-xl p-6">
             <h2 className="text-2xl font-bold text-text mb-6">Review & Publish</h2>
             
@@ -329,6 +401,9 @@ export default function CreateHackathonPage() {
               <div className="bg-bg-elev rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-text mb-2">{formData.name}</h3>
                 <p className="text-muted mb-4">{formData.description}</p>
+                {hackathonImagePreview && (
+                  <img src={hackathonImagePreview} alt="Hackathon Thumbnail" className="w-full h-48 object-cover rounded-lg mb-4" />
+                )}
                 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
@@ -375,10 +450,10 @@ export default function CreateHackathonPage() {
             Previous
           </button>
 
-          {currentStep < 4 ? (
+          {currentStep < steps.length ? (
             <button
               type="button"
-              onClick={() => setCurrentStep(prev => Math.min(4, prev + 1))}
+              onClick={() => setCurrentStep(prev => Math.min(steps.length, prev + 1))}
               className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-2 transition-all"
             >
               Next

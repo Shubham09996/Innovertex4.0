@@ -1,6 +1,9 @@
 // OrganizerProfilePage.jsx
 import React, { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useContext } from 'react'; // Import useContext
+import { AuthContext } from '../../context/AuthContext'; // Import AuthContext
+import api from '../../utils/api'; // Import api
 
 /**
  * Requirements:
@@ -35,10 +38,10 @@ const OrganizerProfilePage = () => {
   ]);
 
   const stats = {
-    hackathons: 47,
-    wins: 12,
-    projects: 35,
-    points: 2847,
+    hackathons: 0,
+    wins: 0,
+    projects: 0,
+    points: 0,
   };
 
   // 30-day activity (0-3)
@@ -52,14 +55,110 @@ const OrganizerProfilePage = () => {
   const [openEdit, setOpenEdit] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
   const [activeTab, setActiveTab] = useState("Activity"); // New state for active tab
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { user, token, logout } = useContext(AuthContext);
+  const [activityGraphData, setActivityGraphData] = useState([]);
 
-  // update profile (mock)
-  const handleSaveProfile = (newProfile) => {
-    setProfile(newProfile);
-    setOpenEdit(false);
-    // small celebration when saving
-    setCelebrate(true);
-    setTimeout(() => setCelebrate(false), 1600);
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      if (!token || !user) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const profileData = await api.getProfile(token);
+        setProfile({
+          name: profileData.username,
+          email: profileData.email,
+          bio: profileData.bio || "No bio available.",
+          avatar: profileData.avatar || `https://ui-avatars.com/api/?name=${profileData.username}`,
+          skills: profileData.skills || [],
+          certificates: profileData.certificates || [],
+          // Map other dynamic stats if available
+          hackathons: profileData.assignedHackathons ? profileData.assignedHackathons.length : 0,
+          organizerRank: profileData.organizerRank || "N/A",
+          eventXP: profileData.eventXP || 0,
+          eventSuccessRate: profileData.eventSuccessRate || 0,
+          participantSatisfaction: profileData.participantSatisfaction || 0,
+          communityGrowth: profileData.communityGrowth || 0,
+        });
+
+        // Fetch activity graph data
+        const graphData = await api.getOrganizerActivityGraphData(token);
+        setActivityGraphData(graphData.map(d => ({ ...d, date: new Date(d.date) }))); // Convert date strings to Date objects
+
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching organizer profile data:", err);
+        setError(err.message || 'Failed to fetch profile data');
+        setLoading(false);
+        logout(); // Logout on error or unauthorized access
+      }
+    };
+    fetchProfileData();
+  }, [token, user]);
+
+  const handleSaveProfile = async (newProfile) => {
+    try {
+      const updatedProfile = await api.updateProfile(
+        {
+          username: newProfile.name,
+          email: newProfile.email,
+          bio: newProfile.bio,
+          avatar: newProfile.avatar,
+          skills: newProfile.skills,
+          certificates: newProfile.certificates,
+        },
+        token
+      );
+      setProfile({
+        name: updatedProfile.username,
+        email: updatedProfile.email,
+        bio: updatedProfile.bio || "No bio available.",
+        avatar: updatedProfile.avatar || `https://ui-avatars.com/api/?name=${updatedProfile.username}`,
+        skills: updatedProfile.skills || [],
+        certificates: updatedProfile.certificates || [],
+        // Retain other dynamic stats as they are not updated via this modal
+        hackathons: profile.hackathons,
+        organizerRank: profile.organizerRank,
+        eventXP: profile.eventXP,
+        eventSuccessRate: profile.eventSuccessRate,
+        participantSatisfaction: profile.participantSatisfaction,
+        communityGrowth: profile.communityGrowth,
+      });
+      setOpenEdit(false);
+      setCelebrate(true);
+      setTimeout(() => setCelebrate(false), 1600);
+      alert("Profile updated successfully!");
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      alert(err.message || 'Failed to update profile.');
+    }
+  };
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-bg text-text py-24 px-6 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="min-h-screen bg-bg text-red-500 py-24 px-6 flex items-center justify-center">
+        <p>Error: {error}. Please try again later or login again.</p>
+      </main>
+    );
+  }
+
+  // Calculate dynamic stats from profile
+  const dynamicStats = {
+    hackathons: profile.hackathons,
+    wins: 0, // Placeholder, needs dedicated backend field
+    projects: 0, // Placeholder, needs dedicated backend field
+    points: profile.eventXP,
   };
 
   return (
@@ -103,7 +202,7 @@ const OrganizerProfilePage = () => {
                 <p className="text-sm text-muted mt-1 max-w-xl">{profile.bio}</p>
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {profile.skills.map((s) => (
+                  {profile.skills && profile.skills.length > 0 ? profile.skills.map((s) => (
                     <motion.span
                       key={s}
                       whileHover={{ y: -4, scale: 1.03 }}
@@ -111,7 +210,7 @@ const OrganizerProfilePage = () => {
                     >
                       {s}
                     </motion.span>
-                  ))}
+                  )) : <p className="text-sm text-muted">No skills added yet.</p>}
                 </div>
 
                 <div className="mt-6 flex flex-wrap gap-3 items-center">
@@ -133,9 +232,9 @@ const OrganizerProfilePage = () => {
                   </button>
 
                   <div className="ml-auto hidden md:flex items-center gap-4">
-                    <StatMini label="Hackathons" value={stats.hackathons} />
-                    <StatMini label="Wins" value={stats.wins} />
-                    <StatMini label="Points" value={stats.points} />
+                    <StatMini label="Hackathons" value={dynamicStats.hackathons} />
+                    <StatMini label="Wins" value={dynamicStats.wins} />
+                    <StatMini label="Points" value={dynamicStats.points} />
                   </div>
                 </div>
               </div>
@@ -151,19 +250,19 @@ const OrganizerProfilePage = () => {
           >
             <StatCard
               title="Organizer Rank"
-              value="#23"
-              subtitle="Top 5% overall"
+              value={profile.organizerRank}
+              subtitle="Top 5% overall" // This could also be dynamic if rank is number
               accent="from-primary to-accent"
             />
             <StatCard
               title="Event XP"
-              value={`${stats.points} pts`}
-              subtitle="Level 15"
+              value={`${profile.eventXP} pts`}
+              subtitle="Level 15" // This could be calculated or dynamic
               accent="from-yellow-400 to-orange-400"
             />
             <StatCard
               title="Events"
-              value={stats.hackathons}
+              value={profile.hackathons}
               subtitle="Organized"
               accent="from-green-400 to-teal-400"
             />
@@ -201,8 +300,8 @@ const OrganizerProfilePage = () => {
                 transition={{ delay: 0.15 }}
                 className="rounded-2xl bg-card backdrop-blur p-6 border border-border"
               >
-                <h3 className="font-semibold text-lg mb-4">Activity Heatmap (30d)</h3>
-                <GitHubLikeActivityGraph />
+                <h3 className="font-semibold text-lg mb-4">Activity Heatmap (Last 12 Months)</h3>
+                <GitHubLikeActivityGraph activityData={activityGraphData} />
                 <p className="mt-4 text-sm text-muted">Consistent event management earns bonus points & badges.</p>
               </motion.div>
 
@@ -217,6 +316,7 @@ const OrganizerProfilePage = () => {
                   <span className="text-sm text-muted">See all</span>
                 </div>
                 <ul className="space-y-3">
+                  {/* Using a placeholder for now, ideally this would be a separate component that fetches recent activities */}
                   <ActivityItem title="Launched AI Innovation Challenge" time="2 days ago" accent="from-pink-500 to-purple-500" />
                   <ActivityItem title="Organized Web3 Development Hackathon" time="7 days ago" accent="from-indigo-500 to-blue-400" />
                   <ActivityItem title="Mentored 15 teams in Fintech Revolution" time="12 days ago" accent="from-green-400 to-teal-300" />
@@ -250,9 +350,9 @@ const OrganizerProfilePage = () => {
             >
               <h3 className="font-semibold text-lg mb-4">My Certificates</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {profile.certificates.map((cert, index) => (
+                {profile.certificates && profile.certificates.length > 0 ? profile.certificates.map((cert, index) => (
                   <motion.div
-                    key={cert.id}
+                    key={cert.id || index} // Use cert.id if available, otherwise index
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -263,7 +363,7 @@ const OrganizerProfilePage = () => {
                     <p className="text-sm text-muted">{cert.authority}</p>
                     <p className="text-xs text-muted">Issued: {cert.date}</p>
                   </motion.div>
-                ))}
+                )) : <p className="text-sm text-muted">No certificates added yet.</p>}
               </div>
             </motion.div>
           )}
@@ -277,19 +377,19 @@ const OrganizerProfilePage = () => {
             className="rounded-2xl bg-card backdrop-blur p-6 border border-border text-center"
           >
             <h4 className="text-sm text-muted mb-4">Organizer Standing</h4>
-            <CircularRank percent={85} rank="#23" points={stats.points} />
+            <CircularRank percent={profile.eventSuccessRate} rank={profile.organizerRank} points={profile.eventXP} />
             <div className="mt-6 space-y-3 text-left">
               <div className="flex justify-between text-sm">
                 <span className="text-muted">Event Success Rate</span>
-                <span className="font-semibold text-text">94%</span>
+                <span className="font-semibold text-text">{profile.eventSuccessRate}%</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted">Participant Satisfaction</span>
-                <span className="font-semibold text-text">4.8/5</span>
+                <span className="font-semibold text-text">{profile.participantSatisfaction}/5</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted">Community Growth</span>
-                <span className="font-semibold text-text">+284%</span>
+                <span className="font-semibold text-text">+{profile.communityGrowth}%</span>
               </div>
             </div>
           </motion.div>
@@ -301,10 +401,10 @@ const OrganizerProfilePage = () => {
           >
             <h4 className="text-sm text-muted mb-4">Quick Stats</h4>
             <div className="grid grid-cols-2 gap-3">
-              <SmallStat label="Hackathons" value={stats.hackathons} color="indigo" />
-              <SmallStat label="Wins" value={stats.wins} color="green" />
-              <SmallStat label="Projects" value={stats.projects} color="blue" />
-              <SmallStat label="Points" value={stats.points} color="yellow" />
+              <SmallStat label="Hackathons" value={dynamicStats.hackathons} color="indigo" />
+              <SmallStat label="Wins" value={dynamicStats.wins} color="green" />
+              <SmallStat label="Projects" value={dynamicStats.projects} color="blue" />
+              <SmallStat label="Points" value={dynamicStats.points} color="yellow" />
             </div>
           </motion.div>
         </aside>
@@ -387,10 +487,10 @@ const CircularRank = ({ percent = 70, rank = "#23", points = 1500 }) => {
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
         {/* center text */}
-        <text x="50%" y="47%" dominantBaseline="middle" textAnchor="middle" className="text-text" style={{ fontSize: 18, fill: "var(--text)", fontWeight: 700 }}>
+        <text x="50%" y="47%" dominantBaseline="middle" textAnchor="middle" className="text-text" style={{ fontSize: 18, fontWeight: 700 }}>
           {rank}
         </text>
-        <text x="50%" y="64%" dominantBaseline="middle" textAnchor="middle" className="text-muted" style={{ fontSize: 12, fill: "var(--muted)" }}>
+        <text x="50%" y="64%" dominantBaseline="middle" textAnchor="middle" className="text-muted" style={{ fontSize: 12 }}>
           {points} pts
         </text>
       </svg>
@@ -399,30 +499,11 @@ const CircularRank = ({ percent = 70, rank = "#23", points = 1500 }) => {
 };
 
 // New component for GitHub-like activity graph
-const GitHubLikeActivityGraph = () => {
-  const [activityData, setActivityData] = useState([]);
+const GitHubLikeActivityGraph = ({ activityData }) => {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
 
   useEffect(() => {
-    // Generate dummy data for the last 12 months (GitHub-like)
-    const generateData = () => {
-      const data = [];
-      const today = new Date();
-      const oneYearAgo = new Date(today);
-      oneYearAgo.setFullYear(today.getFullYear() - 1);
-
-      let day = new Date(oneYearAgo);
-      while (day <= today) {
-        data.push({
-          date: new Date(day),
-          level: Math.floor(Math.random() * 5), // 0 to 4 levels of activity
-        });
-        day.setDate(day.getDate() + 1);
-      }
-      return data;
-    };
-
     const calculateStreaks = (data) => {
       let current = 0;
       let max = 0;
@@ -442,12 +523,10 @@ const GitHubLikeActivityGraph = () => {
       return { current, max };
     };
 
-    const dummyActivity = generateData();
-    setActivityData(dummyActivity);
-    const { current, max } = calculateStreaks(dummyActivity);
+    const { current, max } = calculateStreaks(activityData);
     setCurrentStreak(current);
     setMaxStreak(max);
-  }, []);
+  }, [activityData]);
 
   const colors = [
     "bg-bg-elev/50", // Level 0: No activity
@@ -544,7 +623,7 @@ const GitHubLikeActivityGraph = () => {
         currentMonth = firstActualDay.date.getMonth();
         // Estimate month header position. This is a simplification.
         // In a real GitHub graph, month headers are positioned more precisely over the first week of the month.
-        monthHeaders.push({ name: months[currentMonth], weekIndex });
+        monthHeaders.push({ name: `${months[currentMonth]} ${firstActualDay.date.getFullYear()}`, weekIndex });
       }
     });
 
@@ -634,6 +713,37 @@ const SmallStat = ({ label, value, color = "primary" }) => {
 /* ---------------------- Edit Modal ---------------------- */
 const EditProfileModal = ({ profile, onClose, onSave }) => {
   const [form, setForm] = React.useState(profile);
+  const [skillsInput, setSkillsInput] = React.useState(profile.skills.join(', '));
+  const [certificatesInput, setCertificatesInput] = React.useState(profile.certificates);
+
+  useEffect(() => {
+    setSkillsInput(profile.skills.join(', '));
+    setCertificatesInput(profile.certificates);
+  }, [profile]);
+
+  const handleSkillsChange = (e) => {
+    setSkillsInput(e.target.value);
+  };
+
+  const handleAddSkill = () => {
+    const newSkills = skillsInput.split(',').map(s => s.trim()).filter(s => s.length > 0);
+    setForm(s => ({ ...s, skills: newSkills }));
+  };
+
+  const handleCertificateChange = (index, field, value) => {
+    const newCerts = [...certificatesInput];
+    newCerts[index] = { ...newCerts[index], [field]: value };
+    setCertificatesInput(newCerts);
+    setForm(s => ({ ...s, certificates: newCerts }));
+  };
+
+  const handleAddCertificate = () => {
+    setCertificatesInput(s => [...s, { name: '', authority: '', date: '' }]);
+  };
+
+  const handleRemoveCertificate = (index) => {
+    setCertificatesInput(s => s.filter((_, i) => i !== index));
+  };
 
   return (
     <motion.div
@@ -680,6 +790,61 @@ const EditProfileModal = ({ profile, onClose, onSave }) => {
             rows={3}
             placeholder="Short bio"
           />
+          
+          {/* Skills Input */}
+          <div>
+            <label className="block text-sm font-semibold text-text mb-2">Skills (comma-separated)</label>
+            <input
+              className="p-3 rounded-lg bg-bg-elev border border-border text-text w-full"
+              value={skillsInput}
+              onChange={handleSkillsChange}
+              onBlur={handleAddSkill} // Update skills on blur
+              placeholder="e.g., React, Node.js, Project Management"
+            />
+            <div className="mt-2 flex flex-wrap gap-2">
+              {form.skills && form.skills.map((skill, index) => (
+                <span key={index} className="px-3 py-1 bg-primary/20 text-primary text-xs rounded-full">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Certificates Input */}
+          <div>
+            <label className="block text-sm font-semibold text-text mb-2">Certificates</label>
+            <div className="space-y-2">
+              {certificatesInput.map((cert, index) => (
+                <div key={index} className="flex gap-2 items-end">
+                  <input
+                    className="p-2 rounded-lg bg-bg-elev border border-border text-text flex-1"
+                    value={cert.name}
+                    onChange={(e) => handleCertificateChange(index, 'name', e.target.value)}
+                    placeholder="Certificate Name"
+                  />
+                  <input
+                    className="p-2 rounded-lg bg-bg-elev border border-border text-text flex-1"
+                    value={cert.authority}
+                    onChange={(e) => handleCertificateChange(index, 'authority', e.target.value)}
+                    placeholder="Authority"
+                  />
+                  <input
+                    className="p-2 rounded-lg bg-bg-elev border border-border text-text w-24"
+                    value={cert.date}
+                    onChange={(e) => handleCertificateChange(index, 'date', e.target.value)}
+                    placeholder="Date"
+                  />
+                  <button type="button" onClick={() => handleRemoveCertificate(index)} className="p-2 bg-red-500/20 text-red-400 rounded-lg">
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button type="button" onClick={handleAddCertificate} className="mt-2 px-4 py-2 rounded-full bg-blue-500/20 text-blue-400 font-semibold text-sm">
+              + Add Certificate
+            </button>
+          </div>
+
         </div>
 
         <div className="mt-4 flex justify-end gap-3">

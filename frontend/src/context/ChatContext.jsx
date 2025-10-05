@@ -1,14 +1,17 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import io from 'socket.io-client';
 import { AuthContext } from './AuthContext';
+import api from '../utils/api'; // Import the API utility
 
 const ChatContext = createContext(null);
 
 const ChatProvider = ({ children }) => {
   const { token, user } = useContext(AuthContext);
   const [socket, setSocket] = useState(null);
-  const [teamMessages, setTeamMessages] = useState({}); // { teamId: [messages] }
-  const [mentorMessages, setMentorMessages] = useState({}); // { hackathonId_mentorId: [messages] }
+  const [teamMessages, setTeamMessages] = useState({}); // Stores messages for different team chats
+  const teamChatRefs = useRef({}); // To manage scroll for team chats
+  const [mentorMessages, setMentorMessages] = useState({}); // Stores messages for different mentor chats (keyed by hackathonId_mentorId)
+  const mentorChatRefs = useRef({}); // To manage scroll for mentor chats
   const socketRef = useRef(null); // To persist socket instance across renders
 
   useEffect(() => {
@@ -73,72 +76,104 @@ const ChatProvider = ({ children }) => {
     }
   }, [token, user]);
 
+  // Function to join a team chat room
   const joinTeamChat = (teamId, hackathonId) => {
     if (socket) {
       socket.emit('joinTeamChat', { teamId, hackathonId });
+      // Initialize messages array for this team if not already present
+      setTeamMessages(prev => ({
+        ...prev,
+        [teamId]: prev[teamId] || []
+      }));
     }
   };
 
-  const sendTeamMessage = (teamId, hackathonId, content) => {
-    if (socket && user) {
-      socket.emit('sendTeamMessage', { teamId, hackathonId, content, senderId: user.id });
-    }
-  };
-
+  // Function to join a mentor chat room
   const joinMentorChat = (hackathonId, mentorId) => {
     if (socket) {
-      socket.emit('joinMentorChat', { hackathonId, mentorId });
+      socket.emit('joinMentorChat', { hackathonId, mentorId, userId: user._id });
+      const chatKey = `${hackathonId}_${mentorId}`;
+       // Initialize messages array for this mentor chat if not already present
+      setMentorMessages(prev => ({
+        ...prev,
+        [chatKey]: prev[chatKey] || []
+      }));
     }
   };
 
-  const sendMentorMessage = (hackathonId, mentorId, content) => {
-    if (socket && user) {
-      socket.emit('sendMentorMessage', { hackathonId, mentorId, content, senderId: user.id });
-    }
-  };
-
-  // Function to load historical messages (from REST API for robustness)
-  const loadHistoricalTeamMessages = async (hackathonId, teamId) => {
-    if (token) {
+  // Function to send a team message
+  const sendTeamMessage = async (teamId, hackathonId, message) => {
+    if (socket && user && message.trim()) {
       try {
-        const messages = await api.getTeamChatMessages(hackathonId, teamId, token);
-        setTeamMessages((prevMessages) => ({
+        const newMessage = await api.sendTeamChatMessage(hackathonId, teamId, message, user.username, token); // Use API to send
+        // Socket will emit to others, but we add to our state immediately for responsiveness
+        setTeamMessages(prevMessages => ({
           ...prevMessages,
-          [teamId]: messages,
+          [teamId]: [...(prevMessages[teamId] || []), newMessage]
         }));
-      } catch (err) {
-        console.error('Failed to load historical team messages:', err);
+        socket.emit('teamMessage', newMessage); // Emit for real-time update on other clients
+      } catch (error) {
+        console.error("Error sending team message:", error);
       }
     }
   };
 
-  const loadHistoricalMentorMessages = async (hackathonId, mentorId) => {
+  // Function to send a mentor message
+  const sendMentorMessage = async (hackathonId, mentorId, message) => {
+    if (socket && user && message.trim()) {
+      try {
+        const newMessage = await api.sendMentorChatMessage(hackathonId, mentorId, message, user.username, token); // Use API to send
+        const chatKey = `${hackathonId}_${mentorId}`;
+        setMentorMessages(prevMessages => ({
+          ...prevMessages,
+          [chatKey]: [...(prevMessages[chatKey] || []), newMessage]
+        }));
+        socket.emit('mentorMessage', newMessage); // Emit for real-time update on other clients
+      } catch (error) {
+        console.error("Error sending mentor message:", error);
+      }
+    }
+  };
+
+  // Function to load historical team messages
+  const loadHistoricalTeamMessages = async (hackathonId, teamId) => {
     if (token) {
       try {
+        const messages = await api.getTeamChatMessages(hackathonId, teamId, token);
+        setTeamMessages(prev => ({ ...prev, [teamId]: messages }));
+      } catch (error) {
+        console.error("Failed to load historical team messages:", error);
+      }
+    }
+  };
+
+  // Function to load historical mentor messages
+  const loadHistoricalMentorMessages = async (hackathonId, mentorId) => {
+    if (token) {
+      const chatKey = `${hackathonId}_${mentorId}`;
+      try {
         const messages = await api.getMentorChatMessages(hackathonId, mentorId, token);
-        const chatRoomId = `${hackathonId}_${mentorId}`;
-        setMentorMessages((prevMessages) => ({
-          ...prevMessages,
-          [chatRoomId]: messages,
-        }));
-      } catch (err) {
-        console.error('Failed to load historical mentor messages:', err);
+        setMentorMessages(prev => ({ ...prev, [chatKey]: messages }));
+      } catch (error) {
+        console.error("Failed to load historical mentor messages:", error);
       }
     }
   };
 
   return (
-    <ChatContext.Provider value={{
-      socket,
-      teamMessages,
-      mentorMessages,
-      joinTeamChat,
-      sendTeamMessage,
-      joinMentorChat,
-      sendMentorMessage,
-      loadHistoricalTeamMessages,
-      loadHistoricalMentorMessages,
-    }}>
+    <ChatContext.Provider
+      value={{
+        socket,
+        teamMessages,
+        mentorMessages,
+        sendTeamMessage,
+        sendMentorMessage,
+        joinTeamChat,
+        joinMentorChat,
+        loadHistoricalTeamMessages,
+        loadHistoricalMentorMessages,
+      }}
+    >
       {children}
     </ChatContext.Provider>
   );

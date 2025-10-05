@@ -6,7 +6,10 @@ export default function NavBar({ theme, onToggleTheme }) { // Remove isLoggedIn 
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
-  const { user, logout } = useContext(AuthContext); // Access user and logout from AuthContext
+  const { user, logout, loading } = useContext(AuthContext); // Access user, logout, and loading from AuthContext
+  
+  console.log("NavBar - User:", user);
+  console.log("NavBar - Loading:", loading);
 
   const handleLogout = () => {
     logout(); // Call logout from AuthContext
@@ -27,11 +30,22 @@ export default function NavBar({ theme, onToggleTheme }) { // Remove isLoggedIn 
 
         {/* CENTER - Links */}
         <nav className="hidden md:flex items-center gap-5 flex-none">
-          <Link to="/hackathons" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/hackathons' ? 'active-nav-item' : ''}`}>Hackathons</Link>
-          <Link to="/winners-gallery" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/winners-gallery' ? 'active-nav-item' : ''}`}>Winners Gallery</Link>
-          <Link to="/about" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/about' ? 'active-nav-item' : ''}`}>About</Link>
-          <Link to="/participant/global-leaderboard" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/participant/global-leaderboard' ? 'active-nav-item' : ''}`}>Leaderboard</Link>
-          <Link to="/contact" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/contact' ? 'active-nav-item' : ''}`}>Contact</Link>
+          {user && user.role === 'Organizer' ? (
+            // Organizer-specific navigation
+            <>
+              <Link to="/organizer/dashboard" className={`text-text hover:text-primary transition-colors relative ${currentPath.startsWith('/organizer') ? 'active-nav-item' : ''}`}>Organizer Dashboard</Link>
+              {/* Add more organizer links here if needed */}
+            </>
+          ) : (
+            // Participant/Public navigation
+            <>
+              <Link to="/hackathons" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/hackathons' ? 'active-nav-item' : ''}`}>Hackathons</Link>
+              <Link to="/winners-gallery" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/winners-gallery' ? 'active-nav-item' : ''}`}>Winners Gallery</Link>
+              <Link to="/about" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/about' ? 'active-nav-item' : ''}`}>About</Link>
+              <Link to="/participant/global-leaderboard" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/participant/global-leaderboard' ? 'active-nav-item' : ''}`}>Leaderboard</Link>
+              <Link to="/contact" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/contact' ? 'active-nav-item' : ''}`}>Contact</Link>
+            </>
+          )}
         </nav>
 
         {/* RIGHT - Theme + Auth */}
@@ -44,23 +58,24 @@ export default function NavBar({ theme, onToggleTheme }) { // Remove isLoggedIn 
             {theme === 'dark' ? '☾' : '☀'}
           </button>
 
-          {user ? ( // Check if user is logged in
+          {user && !loading ? ( // Check if user is logged in and not loading
             <>
               <Link
-                to="/dashboard"
+                to={user.role === 'Organizer' ? "/organizer/dashboard" : "/dashboard"}
                 className="btn secondary text-text bg-transparent border border-border px-4 py-2.5 rounded-full font-semibold hover:border-primary-300 transition-all"
               >
                 Dashboard
               </Link>
               <Link
                 to="/participant/profile"
-                className="w-10 h-10 rounded-full grid place-items-center border border-border bg-bg-elev text-text"
+                className="w-10 h-10 rounded-full grid place-items-center border border-border bg-bg-elev text-text flex-none"
                 aria-label="Profile"
               >
                 <img
                   src={user.avatar || `https://ui-avatars.com/api/?name=${user.username}`}
                   alt="Profile"
                   className="w-full h-full object-cover rounded-full"
+                  style={{ aspectRatio: '1/1' }}
                 />
               </Link>
               <button

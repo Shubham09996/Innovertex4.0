@@ -17,13 +17,17 @@ const ActiveHackathons = () => {
       }
       try {
         const userProfile = await api.getProfile(token);
-        if (userProfile && userProfile.hackathonsParticipating) {
-          const hackathonDetailsPromises = userProfile.hackathonsParticipating.map(async (hackathonId) => {
+        if (userProfile) {
+          const participantHackathons = userProfile.hackathonsParticipating || userProfile.assignedHackathons || [];
+
+          const hackathonDetailsPromises = participantHackathons.map(async (hackathonId) => {
             const hackathonData = await api.getHackathonById(hackathonId);
-            const teamData = await api.getUserTeam(hackathonId, token);
+            if (!hackathonData) return null;
+
+            const teamData = await api.getUserTeam(hackathonData._id, token);
             // Only return hackathons that are still active (endDate in the future)
-            if (hackathonData && new Date(hackathonData.endDate) > new Date()) {
-              const submissionData = await api.getSubmission(hackathonId, teamData._id, token); // Fetch submission data
+            if (new Date(hackathonData.endDate) > new Date()) {
+              const submissionData = await api.getSubmission(hackathonData._id, teamData?._id, token); // Fetch submission data
 
               let progress = 0;
               if (submissionData && submissionData._id) {

@@ -7,7 +7,7 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'hackverse_avatars',
     format: async (req, file) => 'png', // supports promises as well
-    public_id: (req, file) => `avatar-${req.user ? req.user.id : Date.now()}`,
+    public_id: (req, file) => `avatar-${Date.now()}-${Math.floor(Math.random() * 1000)}`, // Use timestamp + random for public_id
   },
 });
 

@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import DashboardHero from '../../components/Organizer/DashboardHero';
 import ActiveHackathons from '../../components/Organizer/ActiveHackathons';
 import StatsCard from '../../components/Organizer/StatsCard';
 import RecentActivity from '../../components/Organizer/RecentActivity';
+import api from '../../utils/api'; // Import api
+import { AuthContext } from '../../context/AuthContext'; // Import AuthContext
 
 const OrganizerDashboardPage = () => {
   const [stats, setStats] = useState({
@@ -13,19 +15,24 @@ const OrganizerDashboardPage = () => {
   });
 
   const [loading, setLoading] = useState(true);
+  const { token } = useContext(AuthContext); // Get token from AuthContext
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setStats({
-        totalHackathons: 15,
-        activeHackathons: 4,
-        totalParticipants: 2847,
-        totalSubmissions: 156
-      });
-      setLoading(false);
-    }, 1000);
-  }, []);
+    const fetchDashboardStats = async () => {
+      if (!token) return; // Don't fetch if no token
+
+      try {
+        const data = await api.getOrganizerDashboardStats(token);
+        setStats(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching organizer dashboard stats:", error);
+        // Handle error, maybe set default stats or show an error message
+        setLoading(false);
+      }
+    };
+    fetchDashboardStats();
+  }, [token]);
 
   if (loading) {
     return (

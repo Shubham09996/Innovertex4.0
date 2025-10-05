@@ -26,6 +26,19 @@ const userSchema = new mongoose.Schema({
     trim: true,
     maxlength: 500,
   },
+  skills: [
+    {
+      type: String,
+      trim: true,
+    },
+  ],
+  certificates: [
+    {
+      name: { type: String, trim: true },
+      authority: { type: String, trim: true },
+      date: { type: String, trim: true }, // Store as string for flexibility (e.g., "Jan 2022")
+    },
+  ],
   googleId: {
     type: String,
   },
@@ -46,6 +59,46 @@ const userSchema = new mongoose.Schema({
       ref: 'Hackathon',
     },
   ],
+  assignedHackathons: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Hackathon',
+    },
+  ],
+  assignedTeams: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Team',
+    },
+  ],
+  evaluationsCompleted: {
+    type: Number,
+    default: 0,
+  },
+  sessionsCompleted: {
+    type: Number,
+    default: 0,
+  },
+  organizerRank: {
+    type: String,
+    default: 'N/A',
+  },
+  eventXP: {
+    type: Number,
+    default: 0,
+  },
+  eventSuccessRate: {
+    type: Number,
+    default: 0,
+  },
+  participantSatisfaction: {
+    type: Number,
+    default: 0,
+  },
+  communityGrowth: {
+    type: Number,
+    default: 0,
+  },
 });
 
 export default mongoose.model('User', userSchema);

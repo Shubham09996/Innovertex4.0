@@ -20,7 +20,12 @@ const chatMessageSchema = new mongoose.Schema({
     enum: ['team', 'mentor'], // 'team' for team chat, 'mentor' for mentor chat
     required: true,
   },
-  content: {
+  message: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  senderName: {
     type: String,
     required: true,
     trim: true,

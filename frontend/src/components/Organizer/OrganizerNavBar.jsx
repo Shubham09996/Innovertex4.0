@@ -1,14 +1,16 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react'; // Import useContext
+import { AuthContext } from '../../../src/context/AuthContext'; // Import AuthContext
 
 export default function OrganizerNavBar({ theme, onToggleTheme }) {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const location = useLocation();
   const currentPath = location.pathname;
+  const { user, logout, loading } = useContext(AuthContext); // Access user, logout, and loading from AuthContext
 
   const handleLogout = () => {
-    localStorage.removeItem('jwtToken');
+    logout(); // Call logout from AuthContext
     navigate('/login');
   };
 
@@ -76,36 +78,38 @@ export default function OrganizerNavBar({ theme, onToggleTheme }) {
           </button>
 
           {/* Profile Avatar + Dropdown */}
-          <div className="relative">
-            <button
-              onClick={toggleDropdown}
-              className="w-10 h-10 rounded-full grid place-items-center border border-border bg-bg-elev text-text overflow-hidden cursor-pointer"
-              aria-label="Organizer Profile"
-            >
-              <img
-                src="https://randomuser.me/api/portraits/men/32.jpg"
-                alt="Profile"
-                className="w-full h-full object-cover rounded-full"
-              />
-            </button>
-            {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-xl shadow-lg py-1 z-10">
-                <Link
-                  to="/organizer/profile"
-                  onClick={toggleDropdown}
-                  className="block px-4 py-2 text-text hover:bg-bg-elev transition-colors"
-                >
-                  👤 View Profile
-                </Link>
-                <button
-                  onClick={() => { handleLogout(); toggleDropdown(); }}
-                  className="w-full text-left px-4 py-2 text-text hover:bg-bg-elev transition-colors"
-                >
-                  🚪 Logout
-                </button>
-              </div>
-            )}
-          </div>
+          {user && !loading && ( // Conditionally render profile section only if user is logged in and not loading
+            <div className="relative">
+              <button
+                onClick={toggleDropdown}
+                className="w-10 h-10 rounded-full grid place-items-center border border-border bg-bg-elev text-text overflow-hidden cursor-pointer"
+                aria-label="Organizer Profile"
+              >
+                <img
+                  src={user.avatar || `https://ui-avatars.com/api/?name=${user.username}`}
+                  alt="Profile"
+                  className="w-full h-full object-cover rounded-full"
+                />
+              </button>
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-xl shadow-lg py-1 z-10">
+                  <Link
+                    to="/organizer/profile"
+                    onClick={toggleDropdown}
+                    className="block px-4 py-2 text-text hover:bg-bg-elev transition-colors"
+                  >
+                    👤 View Profile
+                  </Link>
+                  <button
+                    onClick={() => { handleLogout(); toggleDropdown(); }}
+                    className="w-full text-left px-4 py-2 text-text hover:bg-bg-elev transition-colors"
+                  >
+                    🚪 Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </header>

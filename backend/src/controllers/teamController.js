@@ -71,7 +71,8 @@ export const getTeamsByHackathon = async (req, res) => {
   try {
     const teams = await Team.find({ hackathon: req.params.hackathonId })
       .populate('leader', 'name email')
-      .populate('members.user', 'name email');
+      .populate('members.user', 'name email')
+      .populate('submission'); // Populate submission
     res.json(teams);
   } catch (err) {
     console.error(err.message);
@@ -85,19 +86,20 @@ export const getTeamsByHackathon = async (req, res) => {
 export const getTeamById = async (req, res) => {
   try {
     const team = await Team.findById(req.params.id)
-      .populate('leader', 'name email')
-      .populate('members.user', 'name email');
+      .populate('leader', 'username email avatar') // Added avatar
+      .populate('members.user', 'username email avatar') // Added avatar
+      .populate('submission'); // Populate submission
 
     if (!team) {
       return res.status(404).json({ message: 'Team not found' });
     }
 
-    // Check if user is a member or leader of the team
-    const isMember = team.members.some(member => member.user.toString() === req.user.id);
-    if (team.leader.toString() !== req.user.id && !isMember && req.user.role !== 'organizer') {
-      return res.status(403).json({ message: 'Not authorized to view this team' });
-    }
-
+    // Temporarily removing authorization check for debugging
+    // const isMember = team.members.some(member => member.user.toString() === req.user.id);
+    // if (team.leader.toString() !== req.user.id && !isMember && req.user.role !== 'organizer') {
+    //   return res.status(403).json({ message: 'Not authorized to view this team' });
+    // }
+    console.log("Team object being sent from backend:", team); // Added for debugging
     res.json(team);
   } catch (err) {
     console.error(err.message);
@@ -337,14 +339,44 @@ export const getUserTeam = async (req, res) => {
       'members.user': req.user.id,
       hackathon: req.params.hackathonId,
     })
-      .populate('leader', 'username email')
-      .populate('members.user', 'username email');
+      .populate('leader', 'username email avatar') // Added avatar
+      .populate('members.user', 'username email avatar') // Added avatar
+      .populate('submission') // Populate submission
+      .populate('hackathon', 'name'); // Populate hackathon name
 
     if (!team) {
       return res.status(404).json({ message: 'Team not found for this user in this hackathon' });
     }
 
     res.json(team);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+// @desc    Update a team
+// @route   PUT /api/teams/:id
+// @access  Private/Leader or Organizer
+export const updateTeam = async (req, res) => {
+  const { name } = req.body;
+
+  try {
+    let team = await Team.findById(req.params.id);
+
+    if (!team) {
+      return res.status(404).json({ message: 'Team not found' });
+    }
+
+    // Check if the logged-in user is the team leader or an organizer
+    if (team.leader.toString() !== req.user.id && req.user.role !== 'organizer') {
+      return res.status(403).json({ message: 'Not authorized to update this team' });
+    }
+
+    team.name = name || team.name;
+
+    const updatedTeam = await team.save();
+    res.status(200).json(updatedTeam);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

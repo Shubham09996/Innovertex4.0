@@ -16,7 +16,16 @@ const RecommendedHackathons = () => {
         return;
       }
       try {
-        const allHackathons = await api.getHackathons();
+        const allHackathons = await api.getAllPublicHackathons();
+        
+        // Ensure allHackathons is an array before filtering
+        if (!Array.isArray(allHackathons)) {
+          console.error("API did not return an array for allHackathons:", allHackathons);
+          setRecommendedHackathons([]);
+          setLoading(false);
+          return;
+        }
+        
         let userParticipatingHackathonIds = [];
 
         if (user && token) {
@@ -70,7 +79,7 @@ const RecommendedHackathons = () => {
                   ))}
                 </div>
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-primary font-semibold">{hackathon.prize || 'N/A'}</span>
+                  <span className="text-primary font-semibold">${hackathon.prizePool ? (hackathon.prizePool / 1000).toFixed(0) : 0}K</span>
                   <span className="text-muted text-sm">Starts: {new Date(hackathon.startDate).toLocaleDateString()}</span>
                 </div>
                 <Link to={`/participant/hackathons/${hackathon._id}`} className="w-full px-4 py-2 bg-primary text-white rounded-full font-semibold hover:bg-primary-2 transition-colors duration-200 text-center block">Register Now</Link>

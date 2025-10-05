@@ -17,6 +17,7 @@ import ProfilePage from './pages/Participant/ProfilePage';
 import LeaderboardPage from './pages/Participant/LeaderboardPage';
 import HackathonDetailPage from './pages/Participant/HackathonDetailPage';
 import WorkspacePage from './pages/Participant/WorkspacePage';
+import MyTeamDetailsPage from './pages/Participant/MyTeamDetailsPage'; // Import MyTeamDetailsPage
 import ParticipantNavBar from './components/Participant/ParticipantNavBar'; // Import ParticipantNavBar
 import OrganizerNavBar from './components/Organizer/OrganizerNavBar'; // Import OrganizerNavBar
 import JudgeNavBar from './components/Judge/JudgeNavBar'; // Import JudgeNavBar
@@ -54,6 +55,9 @@ import AdminAnalyticsPage from './pages/Admin/AdminAnalyticsPage';
 import AdminProfilePage from './pages/Admin/AdminProfilePage';
 import ContactPage from './pages/ContactPage'; // Import ContactPage
 import GlobalLeaderboardPage from './pages/GlobalLeaderboardPage'; // Import GlobalLeaderboardPage
+import { SocketProvider } from './context/SocketContext'; // Import SocketProvider
+import { AuthProvider } from './context/AuthContext'; // Import AuthProvider
+import { ChatProvider } from './context/ChatContext'; // Import ChatProvider
 
 function AuthLayout({ children, theme, onToggleTheme }) {
   return (
@@ -147,102 +151,109 @@ export default function App() {
   const toggleTheme = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'))
 
   return (
-    <Routes>
-      <Route path="/" element={
-        <div className="page">
-          <Particles />
-          <NavBar theme={theme} onToggleTheme={toggleTheme} />
-          <LandingPage theme={theme} onToggleTheme={toggleTheme} />
-          <Footer />
-        </div>
-      } />
-      <Route path="/features" element={
-        <div className="page">
-          <Particles />
-          <NavBar theme={theme} onToggleTheme={toggleTheme} />
-          <FeaturesPage theme={theme} onToggleTheme={toggleTheme} />
-          <Footer />
-        </div>
-      } />
-      <Route path="/winners-gallery" element={
-        <div className="page bg-bg">
-          <Particles />
-          <NavBar theme={theme} onToggleTheme={toggleTheme} />
-          <WinnersGalleryPage />
-          <Footer />
-        </div>
-      } />
-      <Route path="/community" element={
-        <div className="page">
-          <Particles />
-          <NavBar theme={theme} onToggleTheme={toggleTheme} />
-          <CommunityPage />
-          <Footer />
-        </div>
-      } />
-      <Route path="/login" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><Login /></AuthLayout>} />
-      <Route path="/signup" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><Signup /></AuthLayout>} />
-      <Route path="/about" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><AboutPage /></AuthLayout>} />
-      <Route path="/contact" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><ContactPage /></AuthLayout>} />
-      <Route path="/auth/oauth-callback" element={
-        <div className="page">
-          <Particles />
-          <OAuthCallback />
-        </div>
-      } />
-      <Route path="/dashboard" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><ParticipantDashboardPage /></ParticipantLayout>} />
-      <Route path="/hackathons" element={
-        <div className="page">
-          <Particles />
-          <NavBar theme={theme} onToggleTheme={toggleTheme} />
-          <HackathonsPage />
-          <Footer />
-        </div>
-      } />
-      <Route path="/participant/community" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><CommunityPage /></ParticipantLayout>} />
-      <Route path="/participant/my-hackathons" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><MyHackathonsPage /></ParticipantLayout>} />
-      <Route path="/participant/team" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><TeamPage /></ParticipantLayout>} />
-      <Route path="/participant/profile" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><ProfilePage /></ParticipantLayout>} />
-      <Route path="/participant/global-leaderboard" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><GlobalLeaderboardPage /></ParticipantLayout>} />
-      <Route path="/participant/hackathons/:id" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><HackathonDetailPage /></ParticipantLayout>} />
-      <Route path="/participant/workspace/:id" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><WorkspacePage /></ParticipantLayout>} />
-      
-      {/* Organizer Routes */}
-      <Route path="/organizer/dashboard" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerDashboardPage /></OrganizerLayout>} />
-      <Route path="/organizer/hackathons" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerHackathonsPage /></OrganizerLayout>} />
-      <Route path="/organizer/hackathons/create" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><CreateHackathonPage /></OrganizerLayout>} />
-      <Route path="/organizer/analytics" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><AnalyticsPage /></OrganizerLayout>} />
-      <Route path="/organizer/participants" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><ParticipantsPage /></OrganizerLayout>} />
-      <Route path="/organizer/judges" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><JudgesPage /></OrganizerLayout>} />
-      <Route path="/organizer/mentors" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><MentorsPage /></OrganizerLayout>} />
-      <Route path="/organizer/announcements" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><AnnouncementsPage /></OrganizerLayout>} />
-      <Route path="/organizer/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerProfilePage /></OrganizerLayout>} />
-      <Route path="/organizer/judges/:judgeId/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerJudgeProfilePage /></OrganizerLayout>} />
-      <Route path="/organizer/mentors/:mentorId/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerMentorProfilePage /></OrganizerLayout>} />
-                <Route path="/organizer/hackathons/:id/analytics" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><HackathonAnalyticsPage /></OrganizerLayout>} />
-                <Route path="/organizer/hackathons/:id/edit" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><EditHackathonPage /></OrganizerLayout>} />
-                <Route path="/organizer/hackathons/:id" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><HackathonManagementPage /></OrganizerLayout>} />
-                <Route path="/organizer/teams/:teamId/submission/:hackathonId" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><SubmissionViewPage /></OrganizerLayout>} />
-      
-                {/* Judge Routes */}
-                <Route path="/judge/dashboard" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeDashboardPage /></JudgeLayout>} />
-                <Route path="/judge/evaluations" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeEvaluationsPage /></JudgeLayout>} />
-                <Route path="/judge/mentorship" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeMentorshipPage /></JudgeLayout>} />
-                <Route path="/judge/analytics" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeAnalyticsPage /></JudgeLayout>} />
-                <Route path="/judge/profile" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeProfilePage /></JudgeLayout>} />
-      
-                {/* Mentor Routes */}
-                <Route path="/mentor/dashboard" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorDashboardPage /></MentorLayout>} />
-                <Route path="/mentor/teams" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorTeamsPage /></MentorLayout>} />
-                <Route path="/mentor/chat" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorChatPage /></MentorLayout>} />
-                <Route path="/mentor/analytics" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorAnalyticsPage /></MentorLayout>} />
-                <Route path="/mentor/profile" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorProfilePage /></MentorLayout>} />
+    <AuthProvider>
+      <SocketProvider>
+        <ChatProvider>
+          <Routes>
+            <Route path="/" element={
+              <div className="page">
+                <Particles />
+                <NavBar theme={theme} onToggleTheme={toggleTheme} />
+                <LandingPage theme={theme} onToggleTheme={toggleTheme} />
+                <Footer />
+              </div>
+            } />
+            <Route path="/features" element={
+              <div className="page">
+                <Particles />
+                <NavBar theme={theme} onToggleTheme={toggleTheme} />
+                <FeaturesPage theme={theme} onToggleTheme={toggleTheme} />
+                <Footer />
+              </div>
+            } />
+            <Route path="/winners-gallery" element={
+              <div className="page bg-bg">
+                <Particles />
+                <NavBar theme={theme} onToggleTheme={toggleTheme} />
+                <WinnersGalleryPage />
+                <Footer />
+              </div>
+            } />
+            <Route path="/community" element={
+              <div className="page">
+                <Particles />
+                <NavBar theme={theme} onToggleTheme={toggleTheme} />
+                <CommunityPage />
+                <Footer />
+              </div>
+            } />
+            <Route path="/login" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><Login /></AuthLayout>} />
+            <Route path="/signup" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><Signup /></AuthLayout>} />
+            <Route path="/about" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><AboutPage /></AuthLayout>} />
+            <Route path="/contact" element={<AuthLayout theme={theme} onToggleTheme={toggleTheme}><ContactPage /></AuthLayout>} />
+            <Route path="/auth/oauth-callback" element={
+              <div className="page">
+                <Particles />
+                <OAuthCallback />
+              </div>
+            } />
+            <Route path="/dashboard" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><ParticipantDashboardPage /></ParticipantLayout>} />
+            <Route path="/hackathons" element={
+              <div className="page">
+                <Particles />
+                <NavBar theme={theme} onToggleTheme={toggleTheme} />
+                <HackathonsPage />
+                <Footer />
+              </div>
+            } />
+            <Route path="/participant/community" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><CommunityPage /></ParticipantLayout>} />
+            <Route path="/participant/my-hackathons" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><MyHackathonsPage /></ParticipantLayout>} />
+            <Route path="/participant/my-hackathons/:hackathonId" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><MyTeamDetailsPage /></ParticipantLayout>} />
+            <Route path="/participant/team" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><TeamPage /></ParticipantLayout>} />
+            <Route path="/participant/profile" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><ProfilePage /></ParticipantLayout>} />
+            <Route path="/participant/global-leaderboard" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><GlobalLeaderboardPage /></ParticipantLayout>} />
+            <Route path="/participant/hackathons/:id" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><HackathonDetailPage /></ParticipantLayout>} />
+            <Route path="/participant/workspace" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><WorkspacePage /></ParticipantLayout>} />
+            
+            {/* Organizer Routes */}
+            <Route path="/organizer/dashboard" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerDashboardPage /></OrganizerLayout>} />
+            <Route path="/organizer/hackathons" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerHackathonsPage /></OrganizerLayout>} />
+            <Route path="/organizer/hackathons/create" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><CreateHackathonPage /></OrganizerLayout>} />
+            <Route path="/organizer/analytics" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><AnalyticsPage /></OrganizerLayout>} />
+            <Route path="/organizer/participants" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><ParticipantsPage /></OrganizerLayout>} />
+            <Route path="/organizer/judges" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><JudgesPage /></OrganizerLayout>} />
+            <Route path="/organizer/mentors" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><MentorsPage /></OrganizerLayout>} />
+            <Route path="/organizer/announcements" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><AnnouncementsPage /></OrganizerLayout>} />
+            <Route path="/organizer/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerProfilePage /></OrganizerLayout>} />
+            <Route path="/organizer/judges/:judgeId/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerJudgeProfilePage /></OrganizerLayout>} />
+            <Route path="/organizer/mentors/:mentorId/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerMentorProfilePage /></OrganizerLayout>} />
+            <Route path="/organizer/hackathons/:id/analytics" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><HackathonAnalyticsPage /></OrganizerLayout>} />
+            <Route path="/organizer/hackathons/:id/edit" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><EditHackathonPage /></OrganizerLayout>} />
+            <Route path="/organizer/hackathons/:id" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><HackathonManagementPage /></OrganizerLayout>} />
+            <Route path="/organizer/teams/:teamId/submission/:hackathonId" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><SubmissionViewPage /></OrganizerLayout>} />
+            
+            {/* Judge Routes */}
+            <Route path="/judge/dashboard" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeDashboardPage /></JudgeLayout>} />
+            <Route path="/judge/evaluations" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeEvaluationsPage /></JudgeLayout>} />
+            <Route path="/judge/mentorship" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeMentorshipPage /></JudgeLayout>} />
+            <Route path="/judge/analytics" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeAnalyticsPage /></JudgeLayout>} />
+            <Route path="/judge/profile" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeProfilePage /></JudgeLayout>} />
+            
+            {/* Mentor Routes */}
+            <Route path="/mentor/dashboard" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorDashboardPage /></MentorLayout>} />
+            <Route path="/mentor/teams" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorTeamsPage /></MentorLayout>} />
+            <Route path="/mentor/chat" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorChatPage /></MentorLayout>} />
+            <Route path="/mentor/analytics" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorAnalyticsPage /></MentorLayout>} />
+            <Route path="/mentor/profile" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorProfilePage /></MentorLayout>} />
 
-                {/* Admin Routes */}
-                <Route path="/admin/analytics" element={<AdminLayout theme={theme} onToggleTheme={toggleTheme}><AdminAnalyticsPage /></AdminLayout>} />
-                <Route path="/admin/profile" element={<AdminLayout theme={theme} onToggleTheme={toggleTheme}><AdminProfilePage /></AdminLayout>} />
-      
-      <Route path="/leaderboard" element={<Navigate to="/participant/global-leaderboard" replace />} />
-    </Routes>
+            {/* Admin Routes */}
+            <Route path="/admin/analytics" element={<AdminLayout theme={theme} onToggleTheme={toggleTheme}><AdminAnalyticsPage /></AdminLayout>} />
+            <Route path="/admin/profile" element={<AdminLayout theme={theme} onToggleTheme={toggleTheme}><AdminProfilePage /></AdminLayout>} />
+            
+            <Route path="/leaderboard" element={<Navigate to="/participant/global-leaderboard" replace />} />
+          </Routes>
+        </ChatProvider>
+      </SocketProvider>
+    </AuthProvider>
   )
 }

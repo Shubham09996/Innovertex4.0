@@ -34,6 +34,18 @@ const api = {
     return res.json();
   },
 
+  updateTeam: async (teamId, teamData, token) => {
+    const res = await fetch(`${API_URL}/teams/${teamId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(teamData),
+    });
+    return res.json();
+  },
+
   joinTeam: async (teamId, token) => {
     const res = await fetch(`${API_URL}/teams/${teamId}/join`, {
       method: 'PUT',
@@ -68,8 +80,52 @@ const api = {
     return res.json();
   },
 
-  getHackathons: async () => {
-    const res = await fetch(`${API_URL}/hackathons`);
+  // Hackathon Management APIs
+  createHackathon: async (formData, token) => {
+    const res = await fetch(`${API_URL}/hackathons`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData, // Send FormData directly
+    });
+    return res.json();
+  },
+
+  updateHackathon: async (id, hackathonData, token) => {
+    const res = await fetch(`${API_URL}/hackathons/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(hackathonData),
+    });
+    return res.json();
+  },
+
+  deleteHackathon: async (id, token) => {
+    const res = await fetch(`${API_URL}/hackathons/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return res.json();
+  },
+
+  getHackathons: async (token) => {
+    const res = await fetch(`${API_URL}/hackathons`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return res.json();
+  },
+
+  getAllPublicHackathons: async () => {
+    const res = await fetch(`${API_URL}/hackathons/all`);
     return res.json();
   },
 
@@ -152,6 +208,30 @@ const api = {
     return res.json();
   },
 
+  // New API call for getting submission by ID
+  getSubmissionById: async (submissionId, token) => {
+    const res = await fetch(`${API_URL}/submissions/${submissionId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return res.json();
+  },
+
+  // New API call for updating submission review
+  updateSubmissionReview: async (submissionId, reviewData, token) => {
+    const res = await fetch(`${API_URL}/submissions/${submissionId}/review`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(reviewData),
+    });
+    return res.json();
+  },
+
   getSubmission: async (hackathonId, teamId, token) => {
     const res = await fetch(`${API_URL}/submissions/${hackathonId}/${teamId}`, {
       method: 'GET',
@@ -169,6 +249,124 @@ const api = {
 
   getGlobalLeaderboard: async () => {
     const res = await fetch(`${API_URL}/leaderboard/global`);
+    return res.json();
+  },
+
+  // Announcement APIs
+  createAnnouncement: async (hackathonId, announcementData, token) => {
+    const res = await fetch(`${API_URL}/hackathons/${hackathonId}/announcements`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(announcementData),
+    });
+    return res.json();
+  },
+
+  updateAnnouncement: async (hackathonId, announcementId, announcementData, token) => {
+    const res = await fetch(`${API_URL}/hackathons/${hackathonId}/announcements/${announcementId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(announcementData),
+    });
+    return res.json();
+  },
+
+  deleteAnnouncement: async (hackathonId, announcementId, token) => {
+    const res = await fetch(`${API_URL}/hackathons/${hackathonId}/announcements/${announcementId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return res.json();
+  },
+
+  // Mentor/Judge Assignment APIs
+  assignMentorToHackathon: async (hackathonId, userId, token) => {
+    const res = await fetch(`${API_URL}/hackathons/${hackathonId}/assign-mentor/${userId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return res.json();
+  },
+
+  unassignMentorFromHackathon: async (hackathonId, userId, token) => {
+    const res = await fetch(`${API_URL}/hackathons/${hackathonId}/unassign-mentor/${userId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return res.json();
+  },
+
+  assignJudgeToHackathon: async (hackathonId, userId, token) => {
+    const res = await fetch(`${API_URL}/hackathons/${hackathonId}/assign-judge/${userId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return res.json();
+  },
+
+  unassignJudgeFromHackathon: async (hackathonId, userId, token) => {
+    const res = await fetch(`${API_URL}/hackathons/${hackathonId}/unassign-judge/${userId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return res.json();
+  },
+
+  // User Search API
+  searchUsers: async (query, role, token) => {
+    const res = await fetch(`${API_URL}/auth/users/search?query=${query}&role=${role}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return res.json();
+  },
+
+  // Organizer Dashboard APIs
+  getOrganizerDashboardStats: async (token) => {
+    const res = await fetch(`${API_URL}/organizer/dashboard-stats`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return res.json();
+  },
+
+  getRecentActivities: async (token) => {
+    const res = await fetch(`${API_URL}/organizer/recent-activities`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return res.json();
+  },
+
+  getOrganizerActivityGraphData: async (token) => {
+    const res = await fetch(`${API_URL}/organizer/activity-graph-data`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
     return res.json();
   },
 
@@ -221,6 +419,31 @@ const api = {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
+    });
+    return res.json();
+  },
+
+  // Chat API functions
+  sendTeamChatMessage: async (hackathonId, teamId, message, senderName, token) => {
+    const res = await fetch(`${API_URL}/chat/team/${hackathonId}/${teamId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ message, senderName }),
+    });
+    return res.json();
+  },
+
+  sendMentorChatMessage: async (hackathonId, mentorId, message, senderName, token) => {
+    const res = await fetch(`${API_URL}/chat/mentor/${hackathonId}/${mentorId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ message, senderName }),
     });
     return res.json();
   },

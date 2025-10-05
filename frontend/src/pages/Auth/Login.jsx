@@ -166,7 +166,7 @@ export default function Login() {
         </div>
         <div className="grid gap-4">
           <button
-            onClick={() => (window.location.href = '/api/auth/google')}
+            onClick={() => (window.location.href = `${api.API_URL}/auth/google`)}
             className="w-full flex justify-center items-center gap-2 bg-bg-elev border border-border text-text
                        py-3 px-5 rounded-full font-semibold shadow-sm hover:translate-y-[-2px] hover:shadow-md transition-all duration-160"
           >
@@ -174,7 +174,7 @@ export default function Login() {
             Continue with Google
           </button>
           <button
-            onClick={() => (window.location.href = '/api/auth/github')}
+            onClick={() => (window.location.href = `${api.API_URL}/auth/github`)}
             className="w-full flex justify-center items-center gap-2 bg-bg-elev border border-border text-text
                        py-3 px-5 rounded-full font-semibold shadow-sm hover:translate-y-[-2px] hover:shadow-md transition-all duration-160"
           >

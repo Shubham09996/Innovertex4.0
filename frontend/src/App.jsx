@@ -49,6 +49,9 @@ import MentorTeamsPage from './pages/Mentor/MentorTeamsPage';
 import MentorChatPage from './pages/Mentor/MentorChatPage';
 import MentorAnalyticsPage from './pages/Mentor/MentorAnalyticsPage';
 import MentorProfilePage from './pages/Mentor/MentorProfilePage';
+import AdminNavBar from './components/Admin/AdminNavBar';
+import AdminAnalyticsPage from './pages/Admin/AdminAnalyticsPage';
+import AdminProfilePage from './pages/Admin/AdminProfilePage';
 import ContactPage from './pages/ContactPage'; // Import ContactPage
 import GlobalLeaderboardPage from './pages/GlobalLeaderboardPage'; // Import GlobalLeaderboardPage
 
@@ -106,6 +109,18 @@ function MentorLayout({ children, theme, onToggleTheme }) {
   return (
     <div className="page bg-bg">
       <MentorNavBar theme={theme} onToggleTheme={onToggleTheme} />
+      <div className="flex-grow">
+        {children}
+      </div>
+      <Footer />
+    </div>
+  );
+}
+
+function AdminLayout({ children, theme, onToggleTheme }) {
+  return (
+    <div className="page bg-bg">
+      <AdminNavBar theme={theme} onToggleTheme={onToggleTheme} />
       <div className="flex-grow">
         {children}
       </div>
@@ -222,6 +237,10 @@ export default function App() {
                 <Route path="/mentor/chat" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorChatPage /></MentorLayout>} />
                 <Route path="/mentor/analytics" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorAnalyticsPage /></MentorLayout>} />
                 <Route path="/mentor/profile" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorProfilePage /></MentorLayout>} />
+
+                {/* Admin Routes */}
+                <Route path="/admin/analytics" element={<AdminLayout theme={theme} onToggleTheme={toggleTheme}><AdminAnalyticsPage /></AdminLayout>} />
+                <Route path="/admin/profile" element={<AdminLayout theme={theme} onToggleTheme={toggleTheme}><AdminProfilePage /></AdminLayout>} />
       
       <Route path="/leaderboard" element={<Navigate to="/participant/global-leaderboard" replace />} />
     </Routes>

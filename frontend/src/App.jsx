@@ -36,13 +36,19 @@ import EditHackathonPage from './pages/Organizer/EditHackathonPage';
 import SubmissionViewPage from './pages/Organizer/SubmissionViewPage';
 import AnnouncementsPage from './pages/Organizer/AnnouncementsPage';
 import OrganizerJudgeProfilePage from './pages/Organizer/JudgeProfilePage';
-import MentorProfilePage from './pages/Organizer/MentorProfilePage';
 import OrganizerProfilePage from './pages/Organizer/OrganizerProfilePage';
+import OrganizerMentorProfilePage from './pages/Organizer/MentorProfilePage';
 import JudgeProfilePage from './pages/Judge/JudgeProfilePage';
 import JudgeDashboardPage from './pages/Judge/JudgeDashboardPage';
 import JudgeEvaluationsPage from './pages/Judge/JudgeEvaluationsPage';
 import JudgeMentorshipPage from './pages/Judge/JudgeMentorshipPage';
 import JudgeAnalyticsPage from './pages/Judge/JudgeAnalyticsPage';
+import MentorNavBar from './components/Mentor/MentorNavBar';
+import MentorDashboardPage from './pages/Mentor/MentorDashboardPage';
+import MentorTeamsPage from './pages/Mentor/MentorTeamsPage';
+import MentorChatPage from './pages/Mentor/MentorChatPage';
+import MentorAnalyticsPage from './pages/Mentor/MentorAnalyticsPage';
+import MentorProfilePage from './pages/Mentor/MentorProfilePage';
 import ContactPage from './pages/ContactPage'; // Import ContactPage
 import GlobalLeaderboardPage from './pages/GlobalLeaderboardPage'; // Import GlobalLeaderboardPage
 
@@ -88,6 +94,18 @@ function JudgeLayout({ children, theme, onToggleTheme }) {
   return (
     <div className="page bg-bg">
       <JudgeNavBar theme={theme} onToggleTheme={onToggleTheme} />
+      <div className="flex-grow">
+        {children}
+      </div>
+      <Footer />
+    </div>
+  );
+}
+
+function MentorLayout({ children, theme, onToggleTheme }) {
+  return (
+    <div className="page bg-bg">
+      <MentorNavBar theme={theme} onToggleTheme={onToggleTheme} />
       <div className="flex-grow">
         {children}
       </div>
@@ -185,7 +203,7 @@ export default function App() {
       <Route path="/organizer/announcements" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><AnnouncementsPage /></OrganizerLayout>} />
       <Route path="/organizer/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerProfilePage /></OrganizerLayout>} />
       <Route path="/organizer/judges/:judgeId/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerJudgeProfilePage /></OrganizerLayout>} />
-      <Route path="/organizer/mentors/:mentorId/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><MentorProfilePage /></OrganizerLayout>} />
+      <Route path="/organizer/mentors/:mentorId/profile" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><OrganizerMentorProfilePage /></OrganizerLayout>} />
                 <Route path="/organizer/hackathons/:id/analytics" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><HackathonAnalyticsPage /></OrganizerLayout>} />
                 <Route path="/organizer/hackathons/:id/edit" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><EditHackathonPage /></OrganizerLayout>} />
                 <Route path="/organizer/hackathons/:id" element={<OrganizerLayout theme={theme} onToggleTheme={toggleTheme}><HackathonManagementPage /></OrganizerLayout>} />
@@ -197,6 +215,13 @@ export default function App() {
                 <Route path="/judge/mentorship" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeMentorshipPage /></JudgeLayout>} />
                 <Route path="/judge/analytics" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeAnalyticsPage /></JudgeLayout>} />
                 <Route path="/judge/profile" element={<JudgeLayout theme={theme} onToggleTheme={toggleTheme}><JudgeProfilePage /></JudgeLayout>} />
+      
+                {/* Mentor Routes */}
+                <Route path="/mentor/dashboard" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorDashboardPage /></MentorLayout>} />
+                <Route path="/mentor/teams" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorTeamsPage /></MentorLayout>} />
+                <Route path="/mentor/chat" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorChatPage /></MentorLayout>} />
+                <Route path="/mentor/analytics" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorAnalyticsPage /></MentorLayout>} />
+                <Route path="/mentor/profile" element={<MentorLayout theme={theme} onToggleTheme={toggleTheme}><MentorProfilePage /></MentorLayout>} />
       
       <Route path="/leaderboard" element={<Navigate to="/participant/global-leaderboard" replace />} />
     </Routes>

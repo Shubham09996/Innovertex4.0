@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 export default function MentorNavBar({ theme, onToggleTheme }) {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // New state for mobile menu
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -35,8 +36,38 @@ export default function MentorNavBar({ theme, onToggleTheme }) {
           <Link to="/mentor/chat" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/mentor/chat' ? 'active-nav-item' : ''}`}>Chat</Link>
         </nav>
 
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-20 left-0 w-full bg-nav border-b border-border flex flex-col items-center py-4 space-y-4">
+            <Link to="/mentor/dashboard" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/mentor/dashboard' ? 'active-nav-item' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Dashboard</Link>
+            <Link to="/mentor/teams" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/mentor/teams' ? 'active-nav-item' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>My Teams</Link>
+            <Link to="/mentor/chat" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/mentor/chat' ? 'active-nav-item' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Chat</Link>
+            <Link
+              to="/mentor/profile"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block px-4 py-2 text-text hover:bg-bg-elev transition-colors"
+            >
+              👤 View Profile
+            </Link>
+            <button
+              onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
+              className="w-full text-left px-4 py-2 text-text hover:bg-bg-elev transition-colors"
+            >
+              🚪 Logout
+            </button>
+          </div>
+        )}
+
         {/* RIGHT - Theme + Notifications + Profile */}
         <div className="flex items-center gap-3 flex-1 justify-end relative">
+          {/* Mobile Menu Toggle */}
+          <button
+            className="md:hidden w-10 h-10 rounded-full grid place-items-center border border-border bg-bg-elev text-text cursor-pointer"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle mobile menu"
+          >
+            {isMobileMenuOpen ? '✕' : '☰'}
+          </button>
           {/* Theme Toggle */}
           <button
             className="w-10 h-10 rounded-full grid place-items-center border border-border bg-bg-elev text-text cursor-pointer"

@@ -63,8 +63,8 @@ const RecommendedHackathons = () => {
 
   return (
     <section className="md:col-span-2">
-      <h2 className="text-2xl font-semibold text-text mb-4">Recommended For You</h2>
-      <p className="text-muted mb-6">AI-powered recommendations based on your skills and interests</p>
+      <h2 className="text-xl sm:text-2xl font-semibold text-text mb-4">Recommended For You</h2>
+      <p className="text-muted mb-6 text-sm sm:text-base">AI-powered recommendations based on your skills and interests</p>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {recommendedHackathons.length > 0 ? (
           recommendedHackathons.map((hackathon, index) => (

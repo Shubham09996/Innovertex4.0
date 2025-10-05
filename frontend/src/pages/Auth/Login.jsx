@@ -34,7 +34,7 @@ export default function Login() {
 
       if (data.token) {
         console.log('Login successful:', data);
-        localStorage.setItem('token', data.token);
+        login(data.token); // Use login from AuthContext
         navigate('/'); // Redirect to home or dashboard on successful login
       } else {
         setError(data.msg || 'Login failed');
@@ -42,6 +42,42 @@ export default function Login() {
     } catch (err) {
       console.error(err);
       setError('Server error');
+    }
+  };
+
+  const handleDummyLogin = (role) => {
+    console.log(`Simulating login as ${role}...`);
+    const dummyToken = `dummy-token-${role.toLowerCase()}`;
+    // For dummy login, we'll create a mock user object for the AuthContext
+    // In a real scenario, this would come from the server after a successful dummy auth
+    const dummyUser = {
+      username: `${role}User`,
+      email: `${role.toLowerCase()}@example.com`,
+      role: role,
+      avatar: `https://ui-avatars.com/api/?name=${role.charAt(0)}`,
+    };
+
+    // Store dummy token and user in localStorage to simulate AuthContext behavior
+    localStorage.setItem('token', dummyToken);
+    localStorage.setItem('user', JSON.stringify(dummyUser));
+    
+    // Manually trigger AuthContext's login state update
+    login(dummyToken); // This will also fetch user data via the effect in AuthContext
+
+    // Redirect to respective dashboard
+    switch (role) {
+      case 'Mentor':
+        navigate('/mentor/dashboard');
+        break;
+      case 'Judge':
+        navigate('/judge/dashboard');
+        break;
+      case 'Admin':
+        navigate('/admin/analytics');
+        break;
+      default:
+        navigate('/dashboard'); // Default to participant dashboard
+        break;
     }
   };
 
@@ -144,6 +180,30 @@ export default function Login() {
           >
             <img src="/icons/github.svg" alt="GitHub" className="h-5 w-5" />
             Continue with GitHub
+          </button>
+        </div>
+        {/* Dummy Login Buttons for Roles */}
+        <div className="grid gap-4 mt-6">
+          <button
+            onClick={() => handleDummyLogin('Mentor')}
+            className="w-full flex justify-center items-center gap-2 bg-gradient-to-br from-green-400 to-green-600 text-white
+                       py-3 px-5 rounded-full font-semibold shadow-sm hover:translate-y-[-2px] hover:shadow-md transition-all duration-160"
+          >
+            Login as Mentor
+          </button>
+          <button
+            onClick={() => handleDummyLogin('Judge')}
+            className="w-full flex justify-center items-center gap-2 bg-gradient-to-br from-blue-400 to-blue-600 text-white
+                       py-3 px-5 rounded-full font-semibold shadow-sm hover:translate-y-[-2px] hover:shadow-md transition-all duration-160"
+          >
+            Login as Judge
+          </button>
+          <button
+            onClick={() => handleDummyLogin('Admin')}
+            className="w-full flex justify-center items-center gap-2 bg-gradient-to-br from-red-400 to-red-600 text-white
+                       py-3 px-5 rounded-full font-semibold shadow-sm hover:translate-y-[-2px] hover:shadow-md transition-all duration-160"
+          >
+            Login as Admin
           </button>
         </div>
         <p className="mt-6 text-muted">Don't have an account? <Link to="/signup" className="text-primary font-medium">Sign Up</Link></p>

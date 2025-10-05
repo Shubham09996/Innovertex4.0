@@ -14,7 +14,7 @@ export default function Features() {
   return (
     <section className="py-14 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
-        <h2 className="font-display text-4xl text-center mb-3">Everything You Need to <span className="text-accent">Innovate</span></h2>
+        <h2 className="font-display text-3xl sm:text-4xl text-center mb-3">Everything You Need to <span className="text-accent">Innovate</span></h2>
         <p className="text-center text-muted max-w-4xl mx-auto mb-6">
           Powerful tools and features designed to make your hackathon experience seamless, collaborative, and successful.
         </p>

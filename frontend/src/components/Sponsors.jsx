@@ -100,10 +100,10 @@ export default function Sponsors() {
         variants={containerVariants}
       >
         <motion.div variants={itemVariants} className="text-center">
-          <h2 className="font-display text-4xl mb-4">
+          <h2 className="font-display text-3xl sm:text-4xl mb-4">
             Trusted by <span className="text-primary">Industry Leaders</span>
           </h2>
-          <p className="text-muted max-w-2xl mx-auto">
+          <p className="text-muted max-w-2xl mx-auto text-base sm:text-lg">
             Our hackathons are powered by the world's most innovative companies. We're proud to partner with them to foster the next generation of tech talent.
           </p>
         </motion.div>

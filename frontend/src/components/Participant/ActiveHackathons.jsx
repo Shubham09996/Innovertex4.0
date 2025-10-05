@@ -60,8 +60,8 @@ const ActiveHackathons = () => {
 
   return (
     <section className="bg-card rounded-xl shadow-lg p-6">
-      <h2 className="text-2xl font-semibold text-text mb-4">My Active Hackathons</h2>
-      <p className="text-muted mb-6">Hackathons you're currently participating in</p>
+      <h2 className="text-xl sm:text-2xl font-semibold text-text mb-4">My Active Hackathons</h2>
+      <p className="text-muted mb-6 text-sm sm:text-base">Hackathons you're currently participating in</p>
       {activeHackathons.length > 0 ? (
         activeHackathons.map((hackathon, index) => (
           <div key={hackathon._id} className="mb-4 p-4 bg-bg-elev rounded-lg border border-border hover:shadow-md hover:scale-[1.02] transition-all duration-300">

@@ -53,7 +53,7 @@ export default function AdminNavBar({ theme, onToggleTheme }) {
             </button>
 
             {/* Profile Dropdown */}
-            <div className="relative">
+            <div className="relative hidden md:block"> {/* Hidden on small screens */}
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center gap-2 p-2 rounded-lg hover:bg-bg-elev transition-colors"
@@ -88,7 +88,7 @@ export default function AdminNavBar({ theme, onToggleTheme }) {
 
             {/* Mobile Menu Button */}
             <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={() => { setIsMenuOpen(!isMenuOpen); setIsProfileOpen(false); }}
               className="md:hidden w-10 h-10 rounded-lg bg-bg-elev border border-border flex items-center justify-center text-text"
             >
               <span className="text-lg">☰</span>
@@ -98,23 +98,38 @@ export default function AdminNavBar({ theme, onToggleTheme }) {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border">
-            <nav className="flex flex-col gap-4">
-              <Link
-                to="/admin/analytics"
-                className={`text-text hover:text-primary transition-colors ${currentPath === '/admin/analytics' ? 'text-primary' : ''}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Analytics
-              </Link>
-              <Link
-                to="/admin/profile"
-                className={`text-text hover:text-primary transition-colors ${currentPath === '/admin/profile' ? 'text-primary' : ''}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Profile
-              </Link>
-            </nav>
+          <div className="md:hidden py-4 border-t border-border flex flex-col gap-4">
+            <Link
+              to="/admin/analytics"
+              className={`block px-4 py-2 text-text hover:bg-bg-elev transition-colors ${currentPath === '/admin/analytics' ? 'text-primary' : ''}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Analytics
+            </Link>
+            <Link
+              to="/admin/profile"
+              className={`block px-4 py-2 text-text hover:bg-bg-elev transition-colors ${currentPath === '/admin/profile' ? 'text-primary' : ''}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Profile
+            </Link>
+            {user && (
+              <>
+                <Link
+                  to="/admin/profile"
+                  className="block px-4 py-2 text-text hover:bg-bg-elev transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  👤 View Profile
+                </Link>
+                <button
+                  onClick={() => { handleLogout(); setIsMenuOpen(false); }}
+                  className="block w-full text-left px-4 py-2 text-text hover:bg-bg-elev transition-colors"
+                >
+                  🚪 Logout
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>

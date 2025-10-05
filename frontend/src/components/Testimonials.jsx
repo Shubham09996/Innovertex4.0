@@ -21,8 +21,8 @@ export default function Testimonials() {
   return (
     <section className="py-14">
       <div className="max-w-7xl mx-auto px-6">
-        <h2 className="font-display text-4xl text-center mb-3">Loved by <span className="text-accent">Innovators</span></h2>
-        <p className="text-center text-muted max-w-4xl mx-auto mb-6">
+        <h2 className="font-display text-3xl sm:text-4xl text-center mb-3">Loved by <span className="text-accent">Innovators</span></h2>
+        <p className="text-center text-muted max-w-4xl mx-auto mb-6 text-base sm:text-lg">
           Join thousands of developers, designers, and entrepreneurs who have transformed their ideas into reality with HackVerse.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">

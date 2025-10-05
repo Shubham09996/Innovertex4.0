@@ -5,6 +5,7 @@ import { AuthContext } from '../../context/AuthContext'; // Import AuthContext
 export default function ParticipantNavBar({ theme, onToggleTheme }) {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // New state for mobile menu
   const location = useLocation();
   const currentPath = location.pathname;
   const { user, logout } = useContext(AuthContext); // Access user and logout from AuthContext
@@ -37,9 +38,44 @@ export default function ParticipantNavBar({ theme, onToggleTheme }) {
           <Link to="/participant/global-leaderboard" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/participant/global-leaderboard' ? 'active-nav-item' : ''}`}>Leaderboard</Link>
         </nav>
 
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-20 left-0 w-full bg-nav border-b border-border flex flex-col items-center py-4 space-y-4">
+            <Link to="/participant/my-hackathons" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/participant/my-hackathons' ? 'active-nav-item' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>My Hackathons</Link>
+            <Link to="/participant/community" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/participant/community' ? 'active-nav-item' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Community</Link>
+            <Link to="/participant/global-leaderboard" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/participant/global-leaderboard' ? 'active-nav-item' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Leaderboard</Link>
+            <Link to="/participant/profile"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block px-4 py-2 text-text hover:bg-bg-elev"
+            >
+              View Profile
+            </Link>
+            <Link
+              to="/dashboard"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block px-4 py-2 text-text hover:bg-bg-elev"
+            >
+              Dashboard
+            </Link>
+            <button
+              onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
+              className="w-full text-left px-4 py-2 text-text hover:bg-bg-elev"
+            >
+              Logout
+            </button>
+          </div>
+        )}
+
         {/* RIGHT - Theme + Notifications + Profile */}
         <div className="flex items-center gap-3 flex-1 justify-end relative">
           {/* Theme Toggle */}
+          <button
+            className="md:hidden w-10 h-10 rounded-full grid place-items-center border border-border bg-bg-elev text-text cursor-pointer"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle mobile menu"
+          >
+            {isMobileMenuOpen ? '✕' : '☰'}
+          </button>
           <button
             className="w-10 h-10 rounded-full grid place-items-center border border-border bg-bg-elev text-text cursor-pointer"
             onClick={onToggleTheme}

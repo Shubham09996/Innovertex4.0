@@ -3,7 +3,7 @@ import React from 'react'
 export default function Footer() {
   return (
     <footer className="border-t border-border bg-bg-elev">
-      <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-1 md:grid-cols-4 gap-y-8 md:gap-8">
         <div>
           <div className="flex items-center gap-2 font-display font-bold text-lg mb-4">
             <span className="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-400 to-purple-700">⚡</span>
@@ -40,8 +40,8 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center text-muted">
-        <div>© 2025 HackVerse. All rights reserved. Built with ❤ for innovators.</div>
+      <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center text-muted text-center sm:text-left">
+        <div className="mb-2 sm:mb-0">© 2025 HackVerse. All rights reserved. Built with ❤ for innovators.</div>
         <div className="flex gap-4">
           <a href="#" className="hover:text-primary transition-colors">Terms</a>
           <a href="#" className="hover:text-primary transition-colors">Privacy</a>

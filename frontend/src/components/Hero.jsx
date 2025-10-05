@@ -75,7 +75,7 @@ export default function Hero() {
 
         <h1 className="font-display text-6xl leading-tight mx-auto mb-3 tracking-tight md:text-7xl lg:text-8xl">
           <span className="bg-gradient-to-r from-purple-400 to-purple-700 text-transparent bg-clip-text">
-            <span className="inline-block w-[360px] md:w-[500px] text-left">
+            <span className="inline-block w-full max-w-[300px] sm:max-w-[360px] md:max-w-[500px] text-left">
               {displayText}
               {/* FIX: Asli typing pointer jo blink karega */}
               <span 
@@ -91,7 +91,7 @@ export default function Hero() {
             Join the world's most innovative hackathon platform. Connect with brilliant minds, create groundbreaking solutions, and transform your ideas into reality.
           </motion.p>
           
-          <motion.div className="flex justify-center gap-4 mb-6" variants={itemVariants}>
+          <motion.div className="flex flex-col sm:flex-row justify-center gap-4 mb-6" variants={itemVariants}>
             <a className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary-2 text-white py-3.5 px-5 rounded-full font-semibold shadow-lg hover:translate-y-[-2px] hover:shadow-xl transition-all duration-160" href="#">Start Building →</a>
             <a className="inline-flex items-center gap-2 bg-transparent border border-border text-text py-3.5 px-5 rounded-full font-semibold hover:border-primary/35 transition-all" href="#">Explore Hackathons</a>
           </motion.div>

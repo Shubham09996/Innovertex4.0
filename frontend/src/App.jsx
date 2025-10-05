@@ -64,7 +64,7 @@ function AuthLayout({ children, theme, onToggleTheme }) {
     <div className="page">
       <Particles />
       <NavBar theme={theme} onToggleTheme={onToggleTheme} />
-      <div className="flex-grow pt-[100px] pb-[100px] flex justify-center items-center">
+      <div className="flex-grow pt-24 pb-16 sm:pt-32 sm:pb-24 flex justify-center items-center">
         {children}
       </div>
       <Footer />
@@ -77,7 +77,7 @@ function ParticipantLayout({ children, theme, onToggleTheme }) {
     <div className="page">
       <Particles />
       <ParticipantNavBar theme={theme} onToggleTheme={onToggleTheme} />
-      <div className="flex-grow flex justify-center items-center">
+      <div className="flex-grow flex justify-center items-center px-4 sm:px-6 lg:px-8">
         {children}
       </div>
       <Footer />
@@ -89,7 +89,7 @@ function OrganizerLayout({ children, theme, onToggleTheme }) {
   return (
     <div className="page bg-bg">
       <OrganizerNavBar theme={theme} onToggleTheme={onToggleTheme} />
-      <div className="flex-grow">
+      <div className="flex-grow px-4 sm:px-6 lg:px-8">
         {children}
       </div>
       <Footer />
@@ -101,7 +101,7 @@ function JudgeLayout({ children, theme, onToggleTheme }) {
   return (
     <div className="page bg-bg">
       <JudgeNavBar theme={theme} onToggleTheme={onToggleTheme} />
-      <div className="flex-grow">
+      <div className="flex-grow px-4 sm:px-6 lg:px-8">
         {children}
       </div>
       <Footer />
@@ -113,7 +113,7 @@ function MentorLayout({ children, theme, onToggleTheme }) {
   return (
     <div className="page bg-bg">
       <MentorNavBar theme={theme} onToggleTheme={onToggleTheme} />
-      <div className="flex-grow">
+      <div className="flex-grow px-4 sm:px-6 lg:px-8">
         {children}
       </div>
       <Footer />
@@ -125,7 +125,7 @@ function AdminLayout({ children, theme, onToggleTheme }) {
   return (
     <div className="page bg-bg">
       <AdminNavBar theme={theme} onToggleTheme={onToggleTheme} />
-      <div className="flex-grow">
+      <div className="flex-grow px-4 sm:px-6 lg:px-8">
         {children}
       </div>
       <Footer />
@@ -159,7 +159,9 @@ export default function App() {
               <div className="page">
                 <Particles />
                 <NavBar theme={theme} onToggleTheme={toggleTheme} />
-                <LandingPage theme={theme} onToggleTheme={toggleTheme} />
+                <div className="flex-grow px-4 sm:px-6 lg:px-8">
+                  <LandingPage theme={theme} onToggleTheme={toggleTheme} />
+                </div>
                 <Footer />
               </div>
             } />
@@ -167,7 +169,9 @@ export default function App() {
               <div className="page">
                 <Particles />
                 <NavBar theme={theme} onToggleTheme={toggleTheme} />
-                <FeaturesPage theme={theme} onToggleTheme={toggleTheme} />
+                <div className="flex-grow px-4 sm:px-6 lg:px-8">
+                  <FeaturesPage theme={theme} onToggleTheme={toggleTheme} />
+                </div>
                 <Footer />
               </div>
             } />
@@ -175,7 +179,9 @@ export default function App() {
               <div className="page bg-bg">
                 <Particles />
                 <NavBar theme={theme} onToggleTheme={toggleTheme} />
-                <WinnersGalleryPage />
+                <div className="flex-grow px-4 sm:px-6 lg:px-8">
+                  <WinnersGalleryPage />
+                </div>
                 <Footer />
               </div>
             } />
@@ -183,7 +189,9 @@ export default function App() {
               <div className="page">
                 <Particles />
                 <NavBar theme={theme} onToggleTheme={toggleTheme} />
-                <CommunityPage />
+                <div className="flex-grow px-4 sm:px-6 lg:px-8">
+                  <CommunityPage />
+                </div>
                 <Footer />
               </div>
             } />
@@ -194,7 +202,9 @@ export default function App() {
             <Route path="/auth/oauth-callback" element={
               <div className="page">
                 <Particles />
-                <OAuthCallback />
+                <div className="flex-grow px-4 sm:px-6 lg:px-8">
+                  <OAuthCallback />
+                </div>
               </div>
             } />
             <Route path="/dashboard" element={<ParticipantLayout theme={theme} onToggleTheme={toggleTheme}><ParticipantDashboardPage /></ParticipantLayout>} />
@@ -202,7 +212,9 @@ export default function App() {
               <div className="page">
                 <Particles />
                 <NavBar theme={theme} onToggleTheme={toggleTheme} />
-                <HackathonsPage />
+                <div className="flex-grow px-4 sm:px-6 lg:px-8">
+                  <HackathonsPage />
+                </div>
                 <Footer />
               </div>
             } />

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 export default function JudgeNavBar({ theme, onToggleTheme }) {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // New state for mobile menu
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -34,8 +35,37 @@ export default function JudgeNavBar({ theme, onToggleTheme }) {
           <Link to="/judge/evaluations" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/judge/evaluations' ? 'active-nav-item' : ''}`}>Evaluations</Link>
         </nav>
 
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-20 left-0 w-full bg-nav border-b border-border flex flex-col items-center py-4 space-y-4">
+            <Link to="/judge/dashboard" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/judge/dashboard' ? 'active-nav-item' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Dashboard</Link>
+            <Link to="/judge/evaluations" className={`text-text hover:text-primary transition-colors relative ${currentPath === '/judge/evaluations' ? 'active-nav-item' : ''}`} onClick={() => setIsMobileMenuOpen(false)}>Evaluations</Link>
+            <Link
+              to="/judge/profile"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block px-4 py-2 text-text hover:bg-bg-elev transition-colors"
+            >
+              👤 View Profile
+            </Link>
+            <button
+              onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
+              className="w-full text-left px-4 py-2 text-text hover:bg-bg-elev transition-colors"
+            >
+              🚪 Logout
+            </button>
+          </div>
+        )}
+
         {/* RIGHT - Theme + Notifications + Profile */}
         <div className="flex items-center gap-3 flex-1 justify-end relative">
+          {/* Mobile Menu Toggle */}
+          <button
+            className="md:hidden w-10 h-10 rounded-full grid place-items-center border border-border bg-bg-elev text-text cursor-pointer"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle mobile menu"
+          >
+            {isMobileMenuOpen ? '✕' : '☰'}
+          </button>
           {/* Theme Toggle */}
           <button
             className="w-10 h-10 rounded-full grid place-items-center border border-border bg-bg-elev text-text cursor-pointer"

@@ -1,80 +1,101 @@
 # Innovertex4.0 - Hackathon Management Platform
 
+[![Deployed Link](https://img.shields.io/badge/Live%20Demo-innovertex4--0.vercel.app-green?style=for-the-badge&logo=vercel)](https://innovertex4-0.vercel.app/)
+
 ## Project Overview
 
 Innovertex4.0 is a comprehensive hackathon management platform designed to streamline the entire hackathon lifecycle, from registration and team formation to submission, judging, and winner announcements. It supports multiple user roles, including Participants, Organizers, Judges, Mentors, and Admins, each with tailored dashboards and functionalities.
 
-## Features
+## UI Screenshots
 
-### General
-*   **User Authentication:** Secure login/signup with traditional email/password and OAuth (Google, GitHub).
-*   **Real-time Communication:** Integrated chat and real-time updates using Socket.IO.
-*   **Responsive UI:** Modern and responsive user interface built with React and Tailwind CSS.
-*   **Theming:** Dark and Light mode support.
+Here are some screenshots of the Innovertex4.0 platform:
 
-### Participant
-*   **Hackathon Registration:** Browse and register for active hackathons.
-*   **Team Management:** Form or join teams.
-*   **Submission:** Submit projects and view submission status.
-*   **Leaderboard:** View global and hackathon-specific leaderboards.
-*   **Workspace:** Dedicated workspace for team collaboration.
-*   **Profile Management:** Update personal information.
+### Screenshot 1
+![UI Screenshot 1](frontend/public/images/image1.png)
 
-### Organizer
-*   **Hackathon Creation & Management:** Create, edit, and manage hackathons.
-*   **User Management:** Invite and manage Judges, Mentors, and Participants.
-*   **Team Assignment:** Assign teams to mentors and judges.
-*   **Analytics:** View hackathon and participant analytics.
-*   **Announcements:** Send announcements to participants.
+### Screenshot 2
+![UI Screenshot 2](frontend/public/images/image2.png)
 
-### Judge
-*   **Submission Evaluation:** Access and evaluate submitted projects based on defined criteria.
-*   **Mentorship Overview:** View assigned teams and their progress.
-*   **Analytics & Profile:** View personal analytics and manage profile.
+### Screenshot 3
+![UI Screenshot 3](frontend/public/images/image3.png)
 
-### Mentor
-*   **Team Mentorship:** Provide guidance and support to assigned teams via chat.
-*   **Team Analytics:** Monitor team progress and analytics.
-*   **Chat:** Real-time communication with assigned teams.
+### Screenshot 4
+![UI Screenshot 4](frontend/public/images/image4.png)
 
-### Admin
-*   **Overall Platform Analytics:** Monitor platform usage and performance.
-*   **User & Hackathon Oversight:** Manage all users and hackathons on the platform.
+### Screenshot 5
+![UI Screenshot 5](frontend/public/images/image5.png)
 
-## Technologies Used
+## Features ✨
 
-### Backend (Node.js, Express)
+### General 🌐
+*   **User Authentication:** 🔐 Secure login/signup with traditional email/password and OAuth (Google, GitHub).
+*   **Real-time Communication:** 💬 Integrated chat and real-time updates using Socket.IO.
+*   **Responsive UI:** 📱 Modern and responsive user interface built with React and Tailwind CSS.
+*   **Theming:** 🌓 Dark and Light mode support.
+
+### Participant 🧑‍💻
+*   **Hackathon Registration:** 📝 Browse and register for active hackathons.
+*   **Team Management:** 🤝 Form or join teams.
+*   **Submission:** 📤 Submit projects and view submission status.
+*   **Leaderboard:** 🏆 View global and hackathon-specific leaderboards.
+*   **Workspace:** 💻 Dedicated workspace for team collaboration.
+*   **Profile Management:** 👤 Update personal information.
+
+### Organizer 🗓️
+*   **Hackathon Creation & Management:** 🚀 Create, edit, and manage hackathons.
+*   **User Management:** 👥 Invite and manage Judges, Mentors, and Participants.
+*   **Team Assignment:** 🔗 Assign teams to mentors and judges.
+*   **Analytics:** 📊 View hackathon and participant analytics.
+*   **Announcements:** 📢 Send announcements to participants.
+
+### Judge 🧑‍⚖️
+*   **Submission Evaluation:** ✅ Access and evaluate submitted projects based on defined criteria.
+*   **Mentorship Overview:** 🧑‍🏫 View assigned teams and their progress.
+*   **Analytics & Profile:** 📈 View personal analytics and manage profile.
+
+### Mentor 🧠
+*   **Team Mentorship:** mentor Provide guidance and support to assigned teams via chat.
+*   **Team Analytics:** 📈 Monitor team progress and analytics.
+*   **Chat:** 💬 Real-time communication with assigned teams.
+
+### Admin 👑
+*   **Overall Platform Analytics:** 🌐 Monitor platform usage and performance.
+*   **User & Hackathon Oversight:**  overseeing Manage all users and hackathons on the platform.
+
+## Technologies Used 🛠️
+
+### Backend (Node.js, Express) ⚡
 *   **Framework:** Express.js
-*   **Database:** MongoDB (via Mongoose ORM)
-*   **Authentication:** `bcryptjs`, `jsonwebtoken`, `passport`, `passport-github2`, `passport-google-oauth20`
-*   **Real-time:** `socket.io`
-*   **Cloud Storage:** `cloudinary`, `multer`, `multer-storage-cloudinary`
-*   **Environment Variables:** `dotenv`
-*   **CORS:** `cors`
-*   **Session Management:** `express-session`
+*   **Database:** MongoDB (via Mongoose ORM) 🍃
+*   **Authentication:** `bcryptjs` 🔒, `jsonwebtoken` 🔑, `passport` 🛂, `passport-github2` 🐙, `passport-google-oauth20` 🌍
+*   **Real-time:** `socket.io` 📡
+*   **Cloud Storage:** `cloudinary` ☁️, `multer` 📁, `multer-storage-cloudinary` 📤
+*   **Environment Variables:** `dotenv` ⚙️
+*   **CORS:** `cors` 🔄
+*   **Session Management:** `express-session` 🍪
 
-### Frontend (React.js)
+### Frontend (React.js) ⚛️
 *   **Framework:** React.js
-*   **Build Tool:** Vite
-*   **Routing:** `react-router-dom`
-*   **Styling:** Tailwind CSS, PostCSS, Autoprefixer
-*   **Real-time:** `socket.io-client`
-*   **Animations:** `framer-motion`, `canvas-confetti`
-*   **Icons:** `lucide-react`
-*   **3D Graphics (Potential):** `ogl` (observed in dependencies, suggesting advanced UI elements)
-*   **State Management:** React Context API (`AuthContext`, `ChatContext`, `SocketContext`)
+*   **Build Tool:** Vite ⚡
+*   **Routing:** `react-router-dom` 🛣️
+*   **Styling:** Tailwind CSS 🎨, PostCSS, Autoprefixer
+*   **Real-time:** `socket.io-client` 💬
+*   **Animations:** `framer-motion` ✨, `canvas-confetti` 🎉
+*   **Icons:** `lucide-react` 🌟
+*   **3D Graphics (Potential):** `ogl` 🌌 (observed in dependencies, suggesting advanced UI elements)
+*   **State Management:** React Context API (`AuthContext`, `ChatContext`, `SocketContext`) 🤝
 
-## Getting Started
+## Getting Started 🚀
 
-### Prerequisites
+### Prerequisites ✅
 
-*   Node.js (v14 or higher)
-*   npm or Yarn
-*   MongoDB Atlas account (or local MongoDB instance)
-*   Cloudinary account (for image uploads)
-*   Google and GitHub OAuth credentials (for social login)
+*   Node.js (v14 or higher) 🟢
+*   npm or Yarn 📦
+*   MongoDB Atlas account (or local MongoDB instance) 💾
+*   Cloudinary account (for image uploads) 🖼️
+*   Google and GitHub OAuth credentials (for social login) 🔑
 
-### Installation
+### Installation ⬇️
 
 1.  **Clone the repository:**
     ```bash
@@ -110,7 +131,7 @@ Innovertex4.0 is a comprehensive hackathon management platform designed to strea
     ```
     The frontend will automatically pick up the `FRONTEND_URL` from the backend's `.env` if not explicitly set in the frontend, but you might want to configure it if running on a different port or domain.
 
-## Running the Application
+## Running the Application ▶️
 
 1.  **Start the Backend Server:**
     ```bash
@@ -126,26 +147,8 @@ Innovertex4.0 is a comprehensive hackathon management platform designed to strea
     ```
     The frontend development server will typically run on `http://localhost:5173`.
 
-## UI Screenshots
 
-Here are some screenshots of the Innovertex4.0 platform:
-
-### Screenshot 1
-![UI Screenshot 1](frontend/public/images/image1.png)
-
-### Screenshot 2
-![UI Screenshot 2](frontend/public/images/image2.png)
-
-### Screenshot 3
-![UI Screenshot 3](frontend/public/images/image3.png)
-
-### Screenshot 4
-![UI Screenshot 4](frontend/public/images/image4.png)
-
-### Screenshot 5
-![UI Screenshot 5](frontend/public/images/image5.png)
-
-## Project Structure
+## Project Structure 📁
 
 ```
 Innovertex4.0/
@@ -165,6 +168,8 @@ Innovertex4.0/
 │   ├── node_modules/
 │   ├── package.json
 │   ├── public/                # Static assets
+│   │   ├── icons/
+│   │   └── images/
 │   ├── src/
 │   │   ├── App.jsx            # Main React component, defines routes
 │   │   ├── assets/            # Frontend assets

@@ -11,7 +11,7 @@ const winners = [
     description:
       "AI-powered carbon footprint tracker using computer vision and gamified sustainability insights.",
     image:
-      "https://picsum.photos/seed/ecotracker/900/600",
+      "public/images/W1.jpeg",
     team: ["Shivansh Chaturvedi", "Rohan Kumar", "Ananya Prasad"],
     tech: ["React Native", "Python", "TensorFlow"],
     position: "Winner",
@@ -24,7 +24,7 @@ const winners = [
     description:
       "Telemedicine with AI diagnosis and rural-to-urban doctor connectivity using deep learning.",
     image:
-      "https://picsum.photos/seed/healthconnect/900/600",
+      "public/images/w2.jpeg",
     team: ["Sneha Jha", "Aryan Verma", "Muskan Kumari"],
     tech: ["Vue.js", "Node.js", "OpenAI"],
     position: "Winner",
@@ -37,7 +37,7 @@ const winners = [
     description:
       "Next-gen decentralized identity vault ensuring privacy and ownership with Web3.0.",
     image:
-      "https://picsum.photos/seed/cryptosecure/900/600",
+      "public/images/w3.jpg",
     team: ["Aryan Rajput", "Kriti Kothari"],
     tech: ["React", "Solidity", "Web3.js"],
     position: "1st Runner-up",
@@ -50,7 +50,7 @@ const winners = [
     description:
       "Gamified AR learning experience bringing immersive lessons to life in classrooms.",
     image:
-      "https://picsum.photos/seed/eduquest/900/600",
+      "public/images/w4.jpg",
     team: ["Nikhil Mallya", "Gaurav Singh"],
     tech: ["Unity", "ARCore", "Firebase"],
     position: "Winner",
@@ -63,7 +63,7 @@ const winners = [
     description:
       "Precision agriculture system combining IoT sensors with AI yield prediction.",
     image:
-      "https://picsum.photos/seed/agrosmart/900/600",
+      "public/images/w5.jpg",
     team: ["Akash Dubey", "Pooja Jain"],
     tech: ["Arduino", "Python", "TensorFlow"],
     position: "2nd Runner-up",
@@ -76,7 +76,7 @@ const winners = [
     description:
       "AI-driven traffic optimization system for real-time congestion management.",
     image:
-      "https://picsum.photos/seed/cityflow/900/600",
+      "public/images/w6.jpg",
     team: ["Sourav Mukherjee", "Vaishnavi Singh"],
     tech: ["Next.js", "Flask", "Google Maps API"],
     position: "Winner",
@@ -89,7 +89,7 @@ const winners = [
     description:
       "Smart waste segregation with AI image recognition and gamified citizen rewards.",
     image:
-      "https://picsum.photos/seed/wastezero/900/600",
+      "public/images/W1.jpeg",
     team: ["Ravi Teja", "Lakshmi Priya"],
     tech: ["React", "FastAPI", "OpenCV"],
     position: "Winner",
